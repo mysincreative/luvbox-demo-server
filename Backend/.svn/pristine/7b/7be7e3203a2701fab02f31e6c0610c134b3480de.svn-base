@@ -1,0 +1,330 @@
+package common;
+
+import api.ApplicationAPI;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
+import dao.*;
+import dto.*;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 10/7/13
+ * Time: 12:38 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class RequestMapper {
+/*    public static List<RequestDTO> toRequestDTOList(List<TbRequestMessage> requestDetails){
+          List<RequestDTO> result = new ArrayList<RequestDTO>();
+          for(TbRequestMessage detail:requestDetails){
+              result.add(toRequestDTO(detail));
+          }
+        return result;
+    }
+    public static RequestDTO toRequestDTO(TbRequestMessage requestDetail){
+        RequestDTO result = new RequestDTO();
+        TbRequest request = requestDetail.getTbRequest();
+        result.setLoginId(request.getTbUser().getLoginId());
+        result.setReaded(requestDetail.getIsReaded());
+        result.setStatus(requestDetail.getRequestStatus());
+        result.setCurrentStep(requestDetail.getCurrentStep());
+        //result.setRequestTime(requestDetail.getCreateTime());
+        //result.setMessage(requestDetail.getRequestMessage());
+        //result.setPlace(request.getPlace());
+        //result.setRequestType(request.getRequestType().name());
+        result.setRequestId(requestDetail.getId());
+        //result.setAttachmentFilePath(requestDetail.getAttachedFilePath());
+        return result;
+    }*/
+    public static List<RequestDTO> toRequestDTOsList(List<TbRequest> requestDetails){
+        List<RequestDTO> result = new ArrayList<RequestDTO>();
+        for(TbRequest detail:requestDetails){
+            result.add(toRequestDTO(detail));
+        }
+        return result;
+    }
+    public static RequestDTO toRequestDTO(TbRequest request){
+        RequestDTO result = new RequestDTO();
+        List<TbRequestMessage> messageList = request.getTbRequestMessages();
+        result.setLoginId(request.getTbUser().getLoginId());
+        result.setRequestId(request.getId());
+        result.setPersonInCharge(request.getPersonInCharge() == null ? null : request.getPersonInCharge().getLoginId());
+        result.setCreateDate(request.getRequestTime());
+        result.setCurrentStep(request.getCurrentStep());
+        result.setReaded(false);
+        result.setTitle(request.getTitle());
+        result.setStatus(request.getCurrentStatus());
+        result.setUpdateDate(request.getUpdateTime());
+        result.setType(request.getRequestType());
+        result.setWidth(request.getWidth());
+        result.setLength(request.getLength());
+        result.setRejectCount(request.getRejectCount()==null?0:request.getRejectCount());
+        result.setDescription(request.getDescription());
+        result.setActualPrice(request.getActualPrice());
+        result.setNumberOfFloors(request.getNumberOfFloors());
+        result.setDeadLineForReject(request.getDeadLineOfReject());
+        result.setTrack(Ultis.getTract(request));
+        //result.setUserInfo(UserMapper.toUserInfo(request.getTbUser()));
+        List<TbRequestAttachment> attachments = request.getAttachments();
+        List<Attachment> userModify3DPath = new ArrayList<Attachment>();
+        List<Attachment> designerModify3DPath = new ArrayList<Attachment>();
+        if(attachments!=null&&attachments.size()>0){
+            for(TbRequestAttachment attachment:attachments){
+                if(attachment.getType().equals(AttachmentType.CONCEPT_3D_ATTACHMENT_PATH)){
+                    result.setConcept3DAttachedPath(attachment.getAttachmentFilePath());
+
+                }else if(attachment.getType().equals(AttachmentType.USER_DESIGN_PATH)){
+                    result.setUserAttachmentPath(attachment.getAttachmentFilePath());
+                }else if(attachment.getType().equals(AttachmentType.LAST_3D_ATTACHMENT_PATH)){
+                    Attachment attachDesigner = new Attachment();
+                    attachDesigner.setType(attachment.getType());
+                    attachDesigner.setAttachmentDescription(attachment.getAttachmentDescription());
+                    attachDesigner.setAttachmentFilePath(attachment.getAttachmentFilePath());
+                    attachDesigner.setId(attachment.getId());
+                    attachDesigner.setUploadBy(attachment.getUploadBy()==null?null:attachment.getUploadBy().getLoginId());
+                    attachDesigner.setCreateDate(attachment.getCreateDate());
+                    attachDesigner.setChooise(attachment.getChooise());
+                    result.setLast3DModifyPath(attachDesigner);
+                    result.setUser3DPath(attachment.getAttachmentFilePath());
+                }else if(attachment.getType().equals(AttachmentType.USER_3D_EDITED_PATH)){
+                    Attachment attachDesigner = new Attachment();
+                    attachDesigner.setType(attachment.getType());
+                    attachDesigner.setAttachmentDescription(attachment.getAttachmentDescription());
+                    attachDesigner.setAttachmentFilePath(attachment.getAttachmentFilePath());
+                    attachDesigner.setId(attachment.getId());
+                    attachDesigner.setUploadBy(attachment.getUploadBy()==null?null:attachment.getUploadBy().getLoginId());
+                    attachDesigner.setCreateDate(attachment.getCreateDate());
+                    attachDesigner.setChooise(attachment.getChooise());
+                    userModify3DPath.add(attachDesigner);
+                }else if(attachment.getType().equals(AttachmentType.DESIGNER_3D_EDITED_PATH)){
+                    Attachment attachDesigner = new Attachment();
+                    attachDesigner.setType(attachment.getType());
+                    attachDesigner.setAttachmentDescription(attachment.getAttachmentDescription());
+                    attachDesigner.setAttachmentFilePath(attachment.getAttachmentFilePath());
+                    attachDesigner.setId(attachment.getId());
+                    attachDesigner.setUploadBy(attachment.getUploadBy()==null?null:attachment.getUploadBy().getLoginId());
+                    attachDesigner.setCreateDate(attachment.getCreateDate());
+                    attachDesigner.setChooise(attachment.getChooise());
+                    designerModify3DPath.add(attachDesigner);
+                }
+            }
+        }
+
+           result.setUserEditedPath(userModify3DPath);
+           result.setDesignerEditedPath(designerModify3DPath);
+
+        if(messageList!=null&&messageList.size()>0){
+            List<Message> messages = new ArrayList<Message>(messageList.size());
+            for(TbRequestMessage rqMes: messageList){
+                if(rqMes.getAuto()==null||rqMes.getAuto()==false){
+                    Message message = new Message();
+                    message.setId(rqMes.getId());
+                    message.setCreateTime(rqMes.getCreateTime());
+                    message.setReaded(rqMes.getIsReaded());
+                    message.setUpdatedBy(rqMes.getFromUser()==null?null:rqMes.getFromUser().getLoginId());
+                    message.setStep(rqMes.getCurrentStep());
+                    message.setMessage(rqMes.getRequestMessage());
+                    messages.add(message);
+                }
+            }
+            result.setMessages(messages);
+        }
+        
+        List<TbRequestTemplate> requestTemplates = request.getTemplates();
+        if(requestTemplates!=null&&requestTemplates.size()>0){
+        	System.out.println("requestTemplate is not null: "+requestTemplates.size());
+        	List<CTem> suggestionTemplate = new ArrayList<CTem>();
+        	for (TbRequestTemplate reqTemplate : requestTemplates) {
+				if(reqTemplate.getIsChooise()!=null&&reqTemplate.getIsChooise()){
+                    TbTemplate template = reqTemplate.getTbTemplate();
+                    CTem tem = new CTem();
+                    tem.setId(template.getId());
+                    tem.setAut(template.getAuthor());
+                    tem.setDes(template.getDescription());
+                    tem.setCre(template.getCreateTime());
+                    tem.setTit(template.getTitle());
+                    tem.setFilePath(template.getFilePath());
+                    tem.setImgUrl(template.getImagePreviewUrl());
+                    tem.setPrice(template.getPrice());
+                    tem.setLength(template.getLength());
+                    tem.setWidth(template.getWidth());
+                    result.setChooiseTemplate(tem);
+				}else{
+                    TbTemplate template = reqTemplate.getTbTemplate();
+                    CTem tem = new CTem();
+                    tem.setId(template.getId());
+                    tem.setAut(template.getAuthor());
+                    tem.setDes(template.getDescription());
+                    tem.setCre(template.getCreateTime());
+                    tem.setTit(template.getTitle());
+                    tem.setFilePath(template.getFilePath());
+                    tem.setImgUrl(template.getImagePreviewUrl());
+                    tem.setPrice(template.getPrice());
+                    tem.setLength(template.getLength());
+                    tem.setWidth(template.getWidth());
+                    suggestionTemplate.add(tem);
+				}
+			}
+        	result.setSuggestionTemplates(suggestionTemplate);
+        }
+
+        List<TbPaymentInfo> tbPaymentInfos = request.getPayments();
+        List<PaymentInfo> paymentInfoList = new ArrayList<PaymentInfo>();
+
+        if(tbPaymentInfos!=null&&tbPaymentInfos.size()>0){
+            for(TbPaymentInfo tbPaymentInfo:tbPaymentInfos){
+               /* PaymentInfo paymentInfo = new PaymentInfo();
+                paymentInfo.setPaymentId(tbPaymentInfo.getPaymentId());
+                paymentInfo.setPayment(tbPaymentInfo.getPayment());
+                paymentInfo.setContents(tbPaymentInfo.getContents());
+                paymentInfo.setCreateTime(tbPaymentInfo.getCreateTime());
+                paymentInfo.setCurrency(tbPaymentInfo.getCurrency());
+                paymentInfo.setPaymentType(tbPaymentInfo.getPaymentType());*/
+                paymentInfoList.add(toPaymentInfo(tbPaymentInfo));
+            }
+        }
+        result.setPaymentInfos(paymentInfoList);
+
+        return result;
+    }
+
+    public static PaymentInfo toPaymentInfo(TbPaymentInfo tbPaymentInfo){
+        PaymentInfo paymentInfo = new PaymentInfo();
+        paymentInfo.setPaymentId(tbPaymentInfo.getPaymentId());
+        paymentInfo.setPayment(tbPaymentInfo.getPayment());
+        paymentInfo.setContents(tbPaymentInfo.getContents());
+        paymentInfo.setCreateTime(tbPaymentInfo.getCreateTime());
+        paymentInfo.setCurrency(tbPaymentInfo.getCurrency());
+        paymentInfo.setPaymentType(tbPaymentInfo.getPaymentType());
+        return paymentInfo;
+    }
+    public static PaymentInfo toPaymentInfo(TbPaymentInfo tbPaymentInfo, TbRequest request){
+        PaymentInfo paymentInfo = new PaymentInfo();
+        paymentInfo.setPaymentId(tbPaymentInfo.getPaymentId());
+        paymentInfo.setPayment(tbPaymentInfo.getPayment());
+        paymentInfo.setContents(tbPaymentInfo.getContents());
+        paymentInfo.setCreateTime(tbPaymentInfo.getCreateTime());
+        paymentInfo.setCurrency(tbPaymentInfo.getCurrency());
+        paymentInfo.setPaymentType(tbPaymentInfo.getPaymentType());
+        paymentInfo.setUserInfo(UserMapper.toUserInfo(request.getTbUser()));
+        paymentInfo.setTotalPrice(request.getActualPrice());
+        paymentInfo.setCurrentStatus(request.getCurrentStatus());
+        paymentInfo.setCurrentStep(request.getCurrentStep());
+        paymentInfo.setTrack(Ultis.getTract(request));
+        paymentInfo.setRequestId(request.getId());
+        paymentInfo.setType(request.getRequestType());
+        paymentInfo.setPaymentCount((request.getPayments()==null?0:request.getPayments().size())-1);
+        if(request.getRequestType().equals(RequestType.DECORATION)){
+            paymentInfo.setCurrentStep(request.getCurrentStep()-1);
+
+        }
+        return paymentInfo;
+    }
+
+/*    public static List<RequestDetail> toRequestDetailList(List<TbRequest> requests){
+             List<RequestDetail> result = new ArrayList<RequestDetail>();
+              for(TbRequest request : requests){
+                  result.add(toRequestDetail(request));
+              }
+        return result;
+    }
+
+    public static RequestDetail toRequestDetail(TbRequest request){
+          RequestDetail result = new RequestDetail();
+        TbRequestMessageDAO dao = new TbRequestMessageDAO();
+          List<TbRequestMessage> requestDetails = dao.findByProperty("tbRequest",request);
+          result.setLastStatus(requestDetails.get(0).getRequestStatus().name());
+          result.setOwner(request.getTbUser().getLoginId());
+          result.setPlace(request.getPlace());
+          result.setRequestType(request.getRequestType().name());
+          result.setSubRequest(requestDetails==null?null:toRequestDTOsList(requestDetails));
+            result.setPersonInCharge(request.getPersonInCharge()==null?null:request.getPersonInCharge().getLoginId());
+        return result;
+
+    }*/
+
+    public static Notification toNotification(List<TbRequest> requestLists, Date requestTime){
+        Notification notification = new Notification();
+        notification.setRequestTime(requestTime);
+        List<String> message = new ArrayList<String>();
+        if(requestLists!=null){
+        for(TbRequest request:requestLists){
+           message.add("Neu request has been created: "+"user: "+request.getTbUser().getLoginId()+", type: "+request.getRequestType());
+        }
+        }
+        notification.setMessage(message);
+        return notification;
+    }
+    public static void main(String...args) throws IOException, DocumentException {
+        RequestMapper map = new RequestMapper();
+        map.createPDF("/Users/user/_WORKING/test12.pdf");
+        ApplicationAPI api = new ApplicationAPI();
+        TbRequestDAO dao = new TbRequestDAO();
+        TbRequest request = dao.findById(1);
+        api.notifyToUser(request,request.getTbUser(),"Yêu cầu của bạn đã được khởi tạo thành công");
+    }
+
+    private void createPDF (String pdfFilename){
+
+        //path for the PDF file to be generated
+        String path = pdfFilename;
+        PdfWriter pdfWriter = null;
+
+        //create a new document
+        Document document = new Document();
+
+        try {
+
+            //get Instance of the PDFWriter
+            pdfWriter = PdfWriter.getInstance(document, new FileOutputStream(path));
+
+            //document header attributes
+            document.addAuthor("betterThanZero");
+            document.addCreationDate();
+            document.addProducer();
+            document.addCreator("MySampleCode.com");
+            document.addTitle("Demo for iText XMLWorker");
+            document.setPageSize(PageSize.LETTER);
+
+            //open document
+            document.open();
+
+            //To convert a HTML file from the filesystem
+            //String File_To_Convert = "docs/SamplePDF.html";
+            //FileInputStream fis = new FileInputStream(File_To_Convert);
+
+
+            InputStreamReader fis = new InputStreamReader(
+                    new FileInputStream("/Users/user/_WORKING/CapstoneProject/SVN/trunk/Backend/rdcs-api/src/main/resources/index.html"), "UTF-8");
+            //URL for HTML page
+
+            //get the XMLWorkerHelper Instance
+            XMLWorkerHelper worker = XMLWorkerHelper.getInstance();
+            //convert to PDF
+            worker.parseXHtml(pdfWriter, document, fis);
+
+            //close the document
+            document.close();
+            //close the writer
+            pdfWriter.close();
+
+        }
+
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+
+    }
+}

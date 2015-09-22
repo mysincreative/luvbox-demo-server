@@ -1,0 +1,40 @@
+package dto;
+
+import java.util.Date;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: CONGTUBOT
+ * Date: 10/11/13
+ * Time: 12:22 AM
+ * To change this template use File | Settings | File Templates.
+ */
+public class CCategory {
+    public int id;
+    public String category;
+    public Date createtime;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public Date getCreatetime() {
+        return createtime;
+    }
+
+    public void setCreatetime(Date createtime) {
+        this.createtime = createtime;
+    }
+}

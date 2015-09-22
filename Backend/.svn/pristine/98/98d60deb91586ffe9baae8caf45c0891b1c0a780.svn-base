@@ -1,0 +1,70 @@
+package dto;
+
+import dao.TbUser;
+
+import javax.xml.bind.annotation.XmlElement;
+import java.util.Date;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 10/8/13
+ * Time: 10:58 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class Message {
+    private Integer id;
+    private String updatedBy;
+    private Date createTime;
+    private String message;
+    private Boolean isReaded;
+    private Integer step;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public Boolean getReaded() {
+        return isReaded;
+    }
+
+    public void setReaded(Boolean readed) {
+        isReaded = readed;
+    }
+
+    public Integer getStep() {
+        return step;
+    }
+
+    public void setStep(Integer step) {
+        this.step = step;
+    }
+}

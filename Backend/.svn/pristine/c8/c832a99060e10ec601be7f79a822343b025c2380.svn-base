@@ -1,0 +1,119 @@
+package common;
+
+import dao.TbRequest;
+import dto.RequestType;
+import dto.Status;
+
+import java.io.IOException;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 11/27/13
+ * Time: 1:10 AM
+ * To change this template use File | Settings | File Templates.
+ */
+public class Ultis {
+    public static String getTract(TbRequest request) {
+            String track ="unknow";
+        if (request.getRequestType().equals(RequestType.CONSTRUCTION)) {
+            if (request.getCurrentStatus().equals(Status.NEW)) {
+                track = "new";
+            } else if (request.getCurrentStatus().equals(Status.DONE) && request.getCurrentStep() != 3) {
+                track = "finalFinish";
+            } else if (request.getCurrentStatus().equals(Status.PENDING)) {
+                track = "pending";
+
+            } else if (request.getCurrentStatus().equals(Status.CANCEL)) {
+                track = "cancel";
+
+            } else if (request.getCurrentStatus().equals(Status.INPROGESS) && request.getCurrentStep() != 2) {
+                switch (request.getCurrentStep()) {
+                    case 0 :
+                        track = "approveNew";
+                        break;
+                    case 1 :
+                        track = "signContract";
+                        break;
+                    case 3 :
+                        track = "finalProcessing";
+                        break;
+                    default :
+                        break;
+
+                }
+            } else {
+                if (request.getCurrentStatus().equals(Status.WAIT_FOR_REVIEW) && request.getCurrentStep() == 2)
+                    track = "requestReview";
+
+
+                if (request.getCurrentStatus().equals(Status.INPROGESS) && request.getCurrentStep() == 2) {
+                    track = "requestProcessing";
+                }
+
+                if (request.getCurrentStatus().equals(Status.DONE) && request.getCurrentStep() == 3){
+                    track = "finalFinish";
+                }else if(request.getCurrentStatus().equals(Status.WAIT_FOR_REVIEW) && request.getCurrentStep() == 3){
+                     track="finalConfirm";
+                }
+
+                if(request.getCurrentStatus().equals(Status.PAYALL)&&request.getCurrentStep()==2){
+                    track="payAllFirstStep";
+                }else if(request.getCurrentStatus().equals(Status.PAYALL)&&request.getCurrentStep()==2){
+                    track="payAllSecondStep";
+
+                }
+
+            }
+
+        } else if (request.getRequestType().equals(RequestType.DECORATION)) {
+            if (request.getCurrentStep() == 0) {
+                //trang thai cua request dang o NEW
+                track = "decoNEW";
+
+            } else if (request.getCurrentStep() == 1) {
+                if (request.getCurrentStatus().equals(Status.INPROGESS)) {
+                    //trang thai cua requeest la da chap nhan, assign cho designer va doi designer tao ban ve
+                    track = "decoINPROGRESS";
+
+                }
+            } else if (request.getCurrentStep() == 2) {
+                //user sua xong chuyen lai cho admin
+                if (request.getCurrentStatus().equals(Status.WAIT_FOR_REVIEW)) {
+                    track = "decoWAITforApproval";
+                } else if (request.getCurrentStatus().equals(Status.REJECT)) {
+
+                    track = "decoREJECT";
+
+                }else if (request.getCurrentStatus().equals(Status.INPROGESS)) {
+                    // trang thai cua request khi designer da tao xong ban ve
+                    // bat user phai thanh toan lan 1;
+                    track = "decoFirstCharge";
+                }else if(request.getCurrentStatus().equals(Status.CHARGED)){
+                    //trang thai sau khi user thanh toan, duoc modify
+                    track = "decoREVIEW";
+
+                }
+            } else if (request.getCurrentStep() == 3) {
+                //admin ok
+                if (request.getCurrentStatus().equals(Status.INPROGESS)) {
+                    track = "decoCHARGE";
+                } else if (request.getCurrentStatus().equals(Status.WAIT_FOR_REVIEW)) {
+                    track = "decoFinalConfirm";
+                } else if (request.getCurrentStatus().equals(Status.DONE)){
+                    track = "decoDONE";
+                }else if(request.getCurrentStatus().equals(Status.CHARGED)){
+                    //charge roi
+                    track = "decoDONEcharge";
+                }
+            }
+
+            if (request.getCurrentStatus().equals(Status.PENDING)) {
+                track = "decoPENDING";
+            } else if (request.getCurrentStatus().equals(Status.CANCEL)) {
+                track = "decoCANCEL";
+            }
+        }
+        return track;
+    }
+}

@@ -1,0 +1,40 @@
+package common;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 12/11/13
+ * Time: 10:15 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class SMSSender extends Thread {
+    private String phoneNumber;
+    private String message;
+    public SMSSender(String phoneNumber, String message){
+        this.phoneNumber = phoneNumber;
+        this.message = message;
+    }
+    public void run(){
+        Client client = Client.create();
+        System.out.println("Send SMS to: "+phoneNumber);
+        try{
+            WebResource webResource = client
+                    .resource("https://secure.hoiio.com/open/sms/send")
+                    .queryParam("app_id", "PbyA91gXGjEm86a1")
+                    .queryParam("access_token", "JCRyB8fiv5wspI3j")
+                    .queryParam("dest",phoneNumber)
+                    .queryParam("msg",message);
+
+            String response = webResource.accept("application/json")
+                    .get(String.class);
+
+            System.out.println(response);
+
+        }catch (Exception ex){
+            ex.printStackTrace();;
+        }
+    }
+}

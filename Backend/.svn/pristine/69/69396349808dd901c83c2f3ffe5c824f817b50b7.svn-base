@@ -1,0 +1,45 @@
+package common;
+
+import api.ApplicationAPI;
+
+import javax.mail.MessagingException;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 11/24/13
+ * Time: 10:15 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class EmailSender extends Thread{
+    String toID;
+    String title;
+    String content;
+    public EmailSender(String toID,String title, String content){
+        this.toID=toID;
+        this.title = title;
+        this.content = content;
+    }
+    public void run(){
+        try {
+
+            MimeMessage message = new MimeMessage(ApplicationAPI.getSession());
+            message.setFrom(new InternetAddress("from-email@gmail.com"));
+            message.setRecipients(MimeMessage.RecipientType.TO,
+                    InternetAddress.parse(toID));
+            message.setSubject(title);
+            message.setContent(content, "text/html; charset=utf-8");
+            //  message.setText(content,"utf-8");
+
+
+            Transport.send(message);
+
+            System.out.println("Done");
+
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }    }
+}

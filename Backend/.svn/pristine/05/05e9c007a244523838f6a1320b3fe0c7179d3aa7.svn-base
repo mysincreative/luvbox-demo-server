@@ -1,0 +1,67 @@
+package common;
+
+import dao.TbMessage;
+import dao.TbRequestMessage;
+import dto.Message;
+import dto.Messages;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 10/8/13
+ * Time: 11:02 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class MessageMapper {
+    public static Messages toMessage(List<TbMessage> messageList){
+        Messages result = new Messages();
+        int unreadMessage=0;
+        List<Message> messages = new ArrayList<Message>();
+        if(messageList!=null){
+            for(TbMessage message: messageList){
+               if(!message.getIsReaded()){
+                   unreadMessage++;
+               }
+                Message temp = new Message();
+                temp.setReaded(message.getIsReaded());
+                temp.setMessage(message.getMessage());
+                temp.setCreateTime(message.getCreateTime());
+                temp.setId(message.getId());
+                messages.add(temp);
+                System.out.println(message.getTbUser()==null?"user null":message.getTbUser().getLoginId());
+            }
+        }
+        result.setuReadMessage(unreadMessage);
+        result.setMessageList(messages);
+        return result;
+    }
+
+    public static Messages toMessageList(List<TbRequestMessage> messageList){
+        Messages result = new Messages();
+        int unreadMessage=0;
+        List<Message> messages = new ArrayList<Message>();
+        if(messageList!=null){
+            for(TbRequestMessage message: messageList){
+                if(message.getAuto()!=null&&message.getAuto()){
+                    if(!message.getIsReaded()){
+                        unreadMessage++;
+                    }
+                    Message temp = new Message();
+                    temp.setReaded(message.getIsReaded());
+                    temp.setMessage(message.getRequestMessage());
+                    temp.setCreateTime(message.getCreateTime());
+                    temp.setId(message.getTbRequest().getId());
+                    temp.setStep(message.getCurrentStep());
+                    messages.add(temp);
+                }
+            }
+        }
+        result.setuReadMessage(unreadMessage);
+        result.setMessageList(messages);
+        return result;
+    }
+
+}

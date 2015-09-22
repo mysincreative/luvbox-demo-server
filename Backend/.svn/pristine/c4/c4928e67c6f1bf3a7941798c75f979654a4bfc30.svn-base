@@ -1,0 +1,41 @@
+package dto;
+
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 10/9/13
+ * Time: 2:48 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class Notification {
+    private Date requestTime;
+    private Integer numberOfNotification;
+    private List<String> message;
+
+    public Date getRequestTime() {
+        return requestTime;
+    }
+
+    public void setRequestTime(Date requestTime) {
+        this.requestTime = requestTime;
+    }
+
+    public Integer getNumberOfNotification() {
+        return numberOfNotification;
+    }
+
+    public void setNumberOfNotification(Integer numberOfNotification) {
+        this.numberOfNotification = numberOfNotification;
+    }
+
+    public List<String> getMessage() {
+        return message;
+    }
+
+    public void setMessage(List<String> message) {
+        this.message = message;
+    }
+}

@@ -1,0 +1,34 @@
+package dto;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 10/3/13
+ * Time: 10:31 AM
+ * To change this template use File | Settings | File Templates.
+ */
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
+
+@XmlRootElement
+public class RequestByUser {
+    String userId;
+    List<RequestDTO> request;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public List<RequestDTO> getRequest() {
+        return request;
+    }
+
+    public void setRequest(List<RequestDTO> request) {
+        this.request = request;
+    }
+}

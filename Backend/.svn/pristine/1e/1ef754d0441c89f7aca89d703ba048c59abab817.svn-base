@@ -1,0 +1,47 @@
+package common;
+
+import api.ApplicationAPI;
+import dao.TbUser;
+import dto.UserInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 10/31/13
+ * Time: 9:30 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class UserMapper {
+    public static UserInfo toUserInfo(TbUser user){
+        UserInfo result = new UserInfo();
+        if(user!=null){
+            result.setId(user.getLoginId());
+        if(user.getFirstName()!=null&&user.getLastName()!=null)
+            result.setName(user.getFirstName()+" "+user.getLastName());
+            result.setRole(user.getRole());
+            result.setEmail(user.getEmail());
+            result.setAddress(user.getAddress());
+        }
+        return result;
+    }
+    public static List<UserInfo> toUserInfoList(List<TbUser> users){
+        List<UserInfo> result = new ArrayList<UserInfo>();
+        if(users!=null){
+                for(TbUser user:users){
+                    result.add(toUserInfo(user));
+                }
+        }
+        return result;
+    }
+
+    public static void main(String...args){
+        System.out.println("đậu xanh rau má");
+        ApplicationAPI applicationAPI = new ApplicationAPI
+                ();
+        applicationAPI.sendEmail("haminhthanha3@gmail.com","yêu cầu của bạn đã được khởi tạo thành công ","yêu cầu của bạn đã được khởi tạo thành công  việt nè ");
+
+    }
+}

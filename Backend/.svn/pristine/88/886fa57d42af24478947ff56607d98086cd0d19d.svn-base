@@ -1,0 +1,31 @@
+package dto;
+
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 10/8/13
+ * Time: 11:00 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class Messages {
+    private Integer uReadMessage;
+    private List<Message> messageList;
+
+    public Integer getuReadMessage() {
+        return uReadMessage;
+    }
+
+    public void setuReadMessage(Integer uReadMessage) {
+        this.uReadMessage = uReadMessage;
+    }
+
+    public List<Message> getMessageList() {
+        return messageList;
+    }
+
+    public void setMessageList(List<Message> messageList) {
+        this.messageList = messageList;
+    }
+}

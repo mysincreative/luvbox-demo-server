@@ -1,0 +1,145 @@
+package dto;
+
+import dao.TbRequest;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 11/18/13
+ * Time: 7:45 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class PaymentInfo {
+    // Fields
+    private String paymentId;
+    private Double payment;
+    private String currency;
+    private Date createTime;
+    private String contents;
+    private Integer paymentType; //THANH TOAN TRUC TIEP HAY WA PAYPAL
+    private String track;
+    private Status currentStatus;
+    private UserInfo userInfo;
+    private Double totalPrice;
+    private Integer currentStep;
+    private Integer requestId;
+    private RequestType type;
+    private Integer paymentCount;
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
+    }
+
+
+    public Double getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Double payment) {
+        this.payment = payment;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+
+    public String getContents() {
+        return contents;
+    }
+
+    public void setContents(String contents) {
+        this.contents = contents;
+    }
+
+    public Integer getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(Integer paymentType) {
+        this.paymentType = paymentType;
+    }
+
+    public String getTrack() {
+        return track;
+    }
+
+    public void setTrack(String track) {
+        this.track = track;
+    }
+
+    public Status getCurrentStatus() {
+        return currentStatus;
+    }
+
+    public void setCurrentStatus(Status currentStatus) {
+        this.currentStatus = currentStatus;
+    }
+
+    public UserInfo getUserInfo() {
+        return userInfo;
+    }
+
+    public void setUserInfo(UserInfo userInfo) {
+        this.userInfo = userInfo;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public Integer getCurrentStep() {
+        return currentStep;
+    }
+
+    public void setCurrentStep(Integer currentStep) {
+        this.currentStep = currentStep;
+    }
+
+    public Integer getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(Integer requestId) {
+        this.requestId = requestId;
+    }
+
+    public RequestType getType() {
+        return type;
+    }
+
+    public void setType(RequestType type) {
+        this.type = type;
+    }
+
+    public Integer getPaymentCount() {
+        return paymentCount;
+    }
+
+    public void setPaymentCount(Integer paymentCount) {
+        this.paymentCount = paymentCount;
+    }
+}

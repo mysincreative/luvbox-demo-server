@@ -1,0 +1,286 @@
+package dto;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 2013/10/02
+ * Time: 16:45
+ * To change this template use File | Settings | File Templates.
+ */
+@XmlRootElement
+public class RequestDTO {
+    private Integer requestId;
+    private String loginId;
+    private UserInfo userInfo;
+    private String title;
+    private Status status;
+    private Integer currentStep;
+    private Date createDate;
+    private Date updateDate;
+    private RequestType type;
+    private String personInCharge;
+    private boolean isReaded;
+    private String concept3DAttachedPath;
+    private List<Message> messages;
+    private String userAttachmentPath;
+    private String contractAttachment;
+    private List<CTem> suggestionTemplates;
+    private Integer rejectCount;
+    private Date deadLineForReject;
+    private String description;
+    private CTem chooiseTemplate;
+    private Float width;
+    private Float length;
+    private Double actualPrice;
+    private Integer numberOfFloors;
+    private String user3DPath;
+    private List<PaymentInfo> paymentInfos;
+    private Attachment last3DModifyPath;
+    private List<Attachment> userEditedPath;
+    private List<Attachment> designerEditedPath;
+    private String track;
+
+    public Integer getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(Integer requestId) {
+        this.requestId = requestId;
+    }
+
+    public String getLoginId() {
+        return loginId;
+    }
+
+    public void setLoginId(String loginId) {
+        this.loginId = loginId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public Date getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
+    }
+
+    public RequestType getType() {
+        return type;
+    }
+
+    public void setType(RequestType type) {
+        this.type = type;
+    }
+
+    public String getPersonInCharge() {
+        return personInCharge;
+    }
+
+    public void setPersonInCharge(String personInCharge) {
+        this.personInCharge = personInCharge;
+    }
+
+    public boolean isReaded() {
+        return isReaded;
+    }
+
+    public void setReaded(boolean readed) {
+        isReaded = readed;
+    }
+
+    public String getConcept3DAttachedPath() {
+        return concept3DAttachedPath;
+    }
+
+    public void setConcept3DAttachedPath(String concept3DAttachedPath) {
+        this.concept3DAttachedPath = concept3DAttachedPath;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Integer getCurrentStep() {
+        return currentStep;
+    }
+
+    public void setCurrentStep(Integer currentStep) {
+        this.currentStep = currentStep;
+    }
+
+    public String getUserAttachmentPath() {
+        return userAttachmentPath;
+    }
+
+    public void setUserAttachmentPath(String userAttachmentPath) {
+        this.userAttachmentPath = userAttachmentPath;
+    }
+
+    public Float getWidth() {
+        return width;
+    }
+
+    public void setWidth(Float width) {
+        this.width = width;
+    }
+
+    public Float getLength() {
+        return length;
+    }
+
+    public void setLength(Float length) {
+        this.length = length;
+    }
+
+    public String getContractAttachment() {
+        return contractAttachment;
+    }
+
+    public void setContractAttachment(String contractAttachment) {
+        this.contractAttachment = contractAttachment;
+    }
+
+    public List<CTem> getSuggestionTemplates() {
+        return suggestionTemplates;
+    }
+
+    public void setSuggestionTemplates(List<CTem> suggestionTemplates) {
+        this.suggestionTemplates = suggestionTemplates;
+    }
+
+    public Integer getRejectCount() {
+		return rejectCount;
+	}
+
+	public void setRejectCount(Integer rejectCount) {
+		this.rejectCount = rejectCount;
+	}
+
+	public Date getDeadLineForReject() {
+		return deadLineForReject;
+	}
+
+	public void setDeadLineForReject(Date deadLineForReject) {
+		this.deadLineForReject = deadLineForReject;
+	}
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public CTem getChooiseTemplate() {
+        return chooiseTemplate;
+    }
+
+    public void setChooiseTemplate(CTem chooiseTemplate) {
+        this.chooiseTemplate = chooiseTemplate;
+    }
+
+    public Double getActualPrice() {
+        return actualPrice;
+    }
+
+    public void setActualPrice(Double actualPrice) {
+        this.actualPrice = actualPrice;
+    }
+
+    public Integer getNumberOfFloors() {
+        return numberOfFloors;
+    }
+
+    public void setNumberOfFloors(Integer numberOfFloors) {
+        this.numberOfFloors = numberOfFloors;
+    }
+
+    public String getUser3DPath() {
+        return user3DPath;
+    }
+
+    public void setUser3DPath(String user3DPath) {
+        this.user3DPath = user3DPath;
+    }
+
+    public List<PaymentInfo> getPaymentInfos() {
+        return paymentInfos;
+    }
+
+    public void setPaymentInfos(List<PaymentInfo> paymentInfos) {
+        this.paymentInfos = paymentInfos;
+    }
+
+    public Attachment getLast3DModifyPath() {
+        return last3DModifyPath;
+    }
+
+    public void setLast3DModifyPath(Attachment last3DModifyPath) {
+        this.last3DModifyPath = last3DModifyPath;
+    }
+
+    public List<Attachment> getDesignerEditedPath() {
+        return designerEditedPath;
+    }
+
+    public void setDesignerEditedPath(List<Attachment> designerEditedPath) {
+        this.designerEditedPath = designerEditedPath;
+    }
+
+    public List<Attachment> getUserEditedPath() {
+        return userEditedPath;
+    }
+
+    public void setUserEditedPath(List<Attachment> userEditedPath) {
+        this.userEditedPath = userEditedPath;
+    }
+
+    public UserInfo getUserInfo() {
+        return userInfo;
+    }
+
+    public void setUserInfo(UserInfo userInfo) {
+        this.userInfo = userInfo;
+    }
+
+    public String getTrack() {
+        return track;
+    }
+
+    public void setTrack(String track) {
+        this.track = track;
+    }
+}

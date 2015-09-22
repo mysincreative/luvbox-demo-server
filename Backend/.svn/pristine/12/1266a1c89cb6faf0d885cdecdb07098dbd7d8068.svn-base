@@ -1,0 +1,79 @@
+package dto;
+
+import dao.TbRequest;
+import dao.TbUser;
+
+import java.sql.Timestamp;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 11/21/13
+ * Time: 12:18 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class Attachment {
+    private Integer id;
+    private String attachmentFilePath;
+    private String attachmentDescription;
+    private Timestamp createDate;
+    private String uploadBy;
+    private AttachmentType type;
+    private Boolean isChooise;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getAttachmentFilePath() {
+        return attachmentFilePath;
+    }
+
+    public void setAttachmentFilePath(String attachmentFilePath) {
+        this.attachmentFilePath = attachmentFilePath;
+    }
+
+    public String getAttachmentDescription() {
+        return attachmentDescription;
+    }
+
+    public void setAttachmentDescription(String attachmentDescription) {
+        this.attachmentDescription = attachmentDescription;
+    }
+
+    public Timestamp getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Timestamp createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getUploadBy() {
+        return uploadBy;
+    }
+
+    public void setUploadBy(String uploadBy) {
+        this.uploadBy = uploadBy;
+    }
+
+    public AttachmentType getType() {
+        return type;
+    }
+
+    public void setType(AttachmentType type) {
+        this.type = type;
+    }
+
+    public Boolean getChooise() {
+        return isChooise;
+    }
+
+    public void setChooise(Boolean chooise) {
+        isChooise = chooise;
+    }
+}

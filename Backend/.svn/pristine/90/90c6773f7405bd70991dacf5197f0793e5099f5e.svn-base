@@ -1,0 +1,105 @@
+package dto;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Date;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: CONGTUBOT
+ * Date: 10/7/13
+ * Time: 4:10 PM
+ * To change this template use File | Settings | File Templates.
+ */
+@XmlRootElement
+public class CTem {
+    private int id;
+    private String aut;
+    private String des;
+    private Date cre;
+    private String tit;
+    private String filePath;
+    private String imgUrl;
+    private Long price;
+    private Double width;
+    private Double length;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getAut() {
+        return aut;
+    }
+
+    public void setAut(String aut) {
+        this.aut = aut;
+    }
+
+    public String getDes() {
+        return des;
+    }
+
+    public void setDes(String des) {
+        this.des = des;
+    }
+
+    public Date getCre() {
+        return cre;
+    }
+
+    public void setCre(Date cre) {
+        this.cre = cre;
+    }
+
+    public String getTit() {
+        return tit;
+    }
+
+    public void setTit(String tit) {
+        this.tit = tit;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
+
+    public Long getPrice() {
+        return price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
+
+    public Double getWidth() {
+        return width;
+    }
+
+    public void setWidth(Double width) {
+        this.width = width;
+    }
+
+    public Double getLength() {
+        return length;
+    }
+
+    public void setLength(Double length) {
+        this.length = length;
+    }
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/luvbox-admin/luvbox-admin.iml" filepath="$PROJECT_DIR$/luvbox-admin/luvbox-admin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/luvbox-api/luvbox-api.iml" filepath="$PROJECT_DIR$/luvbox-api/luvbox-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/luvbox-common/luvbox-common.iml" filepath="$PROJECT_DIR$/luvbox-common/luvbox-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/luvbox-dao/luvbox-dao.iml" filepath="$PROJECT_DIR$/luvbox-dao/luvbox-dao.iml" />
+      <module fileurl="file://$PROJECT_DIR$/luvbox-project.iml" filepath="$PROJECT_DIR$/luvbox-project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/luvbox-service/luvbox-service.iml" filepath="$PROJECT_DIR$/luvbox-service/luvbox-service.iml" />
+    </modules>
+  </component>
+</project>

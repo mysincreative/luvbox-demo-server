@@ -1,0 +1,3 @@
+new=Yêu cầu của bạn đã được khởi tạo thành công. Bạn vui lòng đợi chúng tôi xác nhận.
+cancel= hiện tại request của bạn đã bị hủy vì 1 số lý do sau :- Vi phạm hợp đồng.<br/> - Bạn đã yêu cầu hủy request này.<br/> - Ban quản trị đã hủy request này vì 1 số lý do.
+pending= Hiện tại request của bạn đang tạm dừng vì 1 số lý do sau :<br/> - Chưa thanh toán tiền hợp đồng.<br/> - Bạn đã yêu cầu tạm dừng request này.<br/> - Ban quản trị tạm dừng request này vì 1 số lý do.

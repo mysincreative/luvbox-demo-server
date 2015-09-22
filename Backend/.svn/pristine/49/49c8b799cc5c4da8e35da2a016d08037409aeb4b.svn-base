@@ -1,0 +1,68 @@
+package dto;
+
+import java.util.List;
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: user
+ * Date: 10/8/13
+ * Time: 8:39 PM
+ * To change this template use File | Settings | File Templates.
+ */
+public class RequestDetail {
+    private String requestType;
+    private String place;
+    private String owner;
+    private String lastStatus;
+    private String personInCharge;
+
+    List<RequestDTO> subRequest;
+
+    public String getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(String requestType) {
+        this.requestType = requestType;
+    }
+
+    public String getPlace() {
+        return place;
+    }
+
+    public void setPlace(String place) {
+        this.place = place;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public String getLastStatus() {
+        return lastStatus;
+    }
+
+    public void setLastStatus(String lastStatus) {
+        this.lastStatus = lastStatus;
+    }
+
+    public List<RequestDTO> getSubRequest() {
+        return subRequest;
+    }
+
+    public void setSubRequest(List<RequestDTO> subRequest) {
+        this.subRequest = subRequest;
+    }
+
+    public String getPersonInCharge() {
+        return personInCharge;
+    }
+
+    public void setPersonInCharge(String personInCharge) {
+        this.personInCharge = personInCharge;
+    }
+}

@@ -1,0 +1,1335 @@
+package api;
+
+import java.io.*;
+import java.sql.Timestamp;
+import java.util.*;
+
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.core.header.FormDataContentDisposition;
+import com.sun.jersey.multipart.FormDataParam;
+import common.*;
+
+import dao.*;
+import demo.FirstPdf;
+import dto.*;
+import org.apache.commons.io.IOUtils;
+
+
+@Path("/rdcs")
+public class ApplicationAPI {
+    public static final List<Status> unDoneList;
+    static{
+        unDoneList =  new ArrayList<Status>();
+        unDoneList.add(Status.INPROGESS);
+        unDoneList.add(Status.WAIT_FOR_REVIEW);
+        unDoneList.add(Status.PENDING);
+        unDoneList.add(Status.NEW);
+        unDoneList.add(Status.REJECT);
+        unDoneList.add(Status.CHARGED);
+    }
+    public static Properties prop;
+    public static String mailTemplate;
+    public static String coverLetter;
+    public static Properties smsProp;
+    public static Properties internalMessProp;
+    public static final Integer pricePerSqForCons = 100000;
+    public static final Integer pricePerSqForDecs = 80000;
+
+
+    public static String getCoverLetter() throws IOException {
+        if(coverLetter==null){
+            InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("registerSuccess.html");
+
+            Reader reader = new InputStreamReader(inputStream, "UTF-8");
+            try {
+                coverLetter = IOUtils.toString(reader);
+
+            } finally {
+                inputStream.close();
+            }
+        }
+        return coverLetter;
+    }
+
+    public static String getMailTemplate() throws IOException {
+        if(mailTemplate==null){
+            InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("mailTemplate.html");
+
+            Reader reader = new InputStreamReader(inputStream, "UTF-8");
+            try {
+                 mailTemplate = IOUtils.toString(reader);
+
+            } finally {
+                inputStream.close();
+            }
+        }
+        return mailTemplate;
+    }
+
+    public Properties getProperites() throws IOException {
+        if(prop==null){
+            prop = new Properties();
+            InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
+
+            Reader reader = new InputStreamReader(inputStream, "UTF-8");
+            System.out.println(reader==null);
+            prop.load(reader);
+
+            System.out.println(prop.getProperty("creation_text"));
+        }
+        return prop;
+    }
+
+    public Properties getSMSPro() throws IOException {
+        if(smsProp==null){
+            smsProp = new Properties();
+            InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("SMSconfig.properties");
+
+            Reader reader = new InputStreamReader(inputStream, "UTF-8");
+            System.out.println(reader==null);
+            smsProp.load(reader);
+
+            System.out.println(smsProp.getProperty("creation_text"));
+        }
+        return smsProp;
+    }
+
+    public Properties getInternalMessProp() throws IOException {
+        if(internalMessProp==null){
+            internalMessProp = new Properties();
+            InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("InternalMesConfig.properties");
+
+            Reader reader = new InputStreamReader(inputStream, "UTF-8");
+            System.out.println(reader==null);
+            internalMessProp.load(reader);
+
+            System.out.println(internalMessProp.getProperty("creation_text"));
+        }
+        return internalMessProp;
+    }
+
+    public static  Session session;
+    public static Session getSession(){
+        if(session==null){
+            final String username = "rdcs.noreply@gmail.com";
+            final String password = "hongtheteo123";
+
+            Properties props = new Properties();
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.host", "smtp.gmail.com");
+            props.put("mail.smtp.port", "587");
+
+             session = Session.getInstance(props,
+                    new javax.mail.Authenticator() {
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(username, password);
+                        }
+                    });
+        }
+        return session;
+    }
+
+
+    @GET
+    public String getMsg(@QueryParam("param") String msg) {
+
+        String output = "Jersey say : " + msg;
+
+        return output;
+
+    }
+    @GET
+    @Path("assignToMe")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<RequestDTO> getAllRequestAssignToMe(
+            @QueryParam("loginId") String loginId) {
+
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        List<TbRequest> requestList=null;
+        requestList = requestDAO.findAllByAssignToMe(loginId);
+        if(requestList!=null)
+            return RequestMapper.toRequestDTOsList(requestList);
+        return null;
+    }
+
+
+    @GET
+    @Path("getALLRequest")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<RequestDTO> getAllProcessingRequest(
+            @QueryParam("start") Integer start,
+            @QueryParam("limit") Integer limit,
+            @QueryParam("loginId") String loginId,
+            @QueryParam("isOnlyProcessing") Boolean onlyProcessing,
+            @QueryParam("status") Status status) {
+        if(start==null){
+            start=0;
+        }
+        if(limit ==null){
+            limit=100;
+        }
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        List<TbRequest> requestList=null;
+        if(status!=null){
+            List<Status> queryStatus = new ArrayList<Status>();
+            queryStatus.add(status);
+            requestList = requestDAO.findAll(queryStatus,loginId,start,limit);
+        }else{
+            if(onlyProcessing!=null&&onlyProcessing){
+                requestList = requestDAO.findAll(unDoneList,loginId,start,limit);
+            }else{
+                requestList = requestDAO.findAll(null,loginId,start,limit);
+
+            }
+        }
+        if(requestList!=null)
+            return RequestMapper.toRequestDTOsList(requestList);
+        return null;
+    }
+
+    @GET
+    @Path("requestById")
+    @Produces(MediaType.APPLICATION_JSON)
+    public RequestDTO getRequestById(
+            @QueryParam("id") Integer id) {
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        List<TbRequest> requestListTemp =  requestDAO.findByProperty("id",id);
+        TbRequest temp =  requestListTemp!=null&&requestListTemp.size()>0?requestListTemp.get(0):null;
+        return temp==null?null:RequestMapper.toRequestDTO(temp);
+    }
+
+
+    @POST
+    @Path("insertRequest")
+    @Produces(MediaType.APPLICATION_JSON)
+    public RequestDTO insertRequest(@QueryParam("loginId") String loginId,
+                                    @QueryParam("phoneNumber") String phoneNumber,
+                                    @QueryParam("title") String message,
+                                    @QueryParam("requestType") RequestType requestType,
+                                    @QueryParam("templateID") Integer templateID,
+                                    @QueryParam("length") Float length,
+                                    @QueryParam("width") Float width,
+                                    @QueryParam("description") String description){
+        TbUserDAO userDAO = new TbUserDAO();
+        TbRequestMessageDAO requestDetailDAO = new TbRequestMessageDAO();
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        TbRequest request = null;
+        if(loginId!=null){
+            List<TbUser> user = userDAO.findByLoginId(loginId,null);
+            if(user!=null&&user.size()>0){
+
+                request= new TbRequest();
+
+                request.setRequestTime(new Date(System.currentTimeMillis()));
+                request.setRequestType(requestType);
+                request.setTbUser(user.get(0));
+                request.setCurrentStep(0);
+                request.setCurrentStatus(Status.NEW);
+                request.setTitle(message);
+                request.setUpdateTime(new Date(System.currentTimeMillis()));
+                request.setLength(length);
+                request.setWidth(width);
+                request.setDescription(description);
+                if(templateID!=null){
+                    TbTemplateDAO dao = new TbTemplateDAO();
+                    TbTemplate template = dao.findById(templateID);
+                    //request.setTemplate(template);
+                   // request.setUserUploadFilePath(template == null ? null : template.getFilePath());
+                   // request.setTemplate3dsPath(template==null?null:template.getFilePath());
+                }
+                EntityManagerHelper.beginTransaction();
+                requestDAO.save(request);
+                EntityManagerHelper.commit();
+            }
+
+
+        }else if(phoneNumber!=null){
+            //xu ly cho phone number here
+        }
+        return request==null?null:RequestMapper.toRequestDTO(request);
+    }
+
+    @POST
+    @Path("insertRequestNEW")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes({MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_FORM_URLENCODED})
+    public RequestDTO insertRequestNEW(
+            @Context HttpServletRequest requestContext,
+            @FormDataParam("loginId") String loginId,
+            @FormDataParam("phoneNumber") String phoneNumber,
+            @FormDataParam("title") String title,
+            @FormDataParam("requestType") RequestType requestType,
+            @FormDataParam("file") InputStream uploadedInputStream,
+            @FormDataParam("file") FormDataContentDisposition fileDetail,
+            @FormDataParam("length") Float length,
+            @FormDataParam("description") String description,
+            @FormDataParam("width") Float width,
+            @FormDataParam("numberOfFloors") Integer numberOfFloors,
+            @FormDataParam("templateId") Integer templateId
+
+    ) throws IOException {
+        TbUserDAO userDAO = new TbUserDAO();
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        TbRequestAttachmentDAO attachmentDAO = new TbRequestAttachmentDAO();
+        TbTemplateDAO temDAo = new TbTemplateDAO();
+        TbRequest request=null;
+        if(loginId!=null){
+            List<TbUser> user = userDAO.findByLoginId(loginId,null);
+            if(user!=null&&user.size()>0){
+                String filePath=null;
+                if(fileDetail!=null&&fileDetail.getFileName()!=null){
+                    String uploadedFileLocation = requestContext.getSession().getServletContext().getRealPath("/requestdata");
+                    //using current time to sure that there're no image can the same url
+                    String fileName = "/"+System.currentTimeMillis()+fileDetail.getFileName();
+                    System.out.println("file location:"+uploadedFileLocation);
+                    try {
+                        writeToFile(uploadedInputStream, uploadedFileLocation + fileName);
+                    } catch (IOException e) {
+                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    }
+
+                    filePath = "requestdata"+fileName;
+
+                }
+                request= new TbRequest();
+                request.setRequestTime(new Date(System.currentTimeMillis()));
+                request.setUpdateTime(new Date(System.currentTimeMillis()));
+                request.setRequestType(requestType);
+                request.setTbUser(user.get(0));
+                request.setCurrentStep(0);
+                request.setCurrentStatus(Status.NEW);
+                request.setTitle(title);
+                request.setDescription(description);
+                request.setLength(length);
+                request.setWidth(width);
+                request.setNumberOfFloors(numberOfFloors);
+                if(requestType.equals(RequestType.DECORATION)){
+                    request.setActualPrice((double)length*width*(numberOfFloors+1)*ApplicationAPI.pricePerSqForDecs);
+                }
+                //for attachment
+                TbRequestAttachment attachment = new TbRequestAttachment();
+                attachment.setAttachmentDescription("user template");
+                attachment.setAttachmentFilePath(filePath);
+                attachment.setCreateDate(new Timestamp(System.currentTimeMillis()));
+                attachment.setRequest(request);
+                attachment.setType(AttachmentType.USER_DESIGN_PATH);
+                attachment.setUploadBy(user.get(0));
+
+
+
+                EntityManagerHelper.beginTransaction();
+                requestDAO.save(request);
+                attachmentDAO.save(attachment);
+                if(templateId!=null&&templateId!=0){
+                    TbTemplate tem = temDAo.findById(templateId);
+                    if(tem!=null){
+                        TbRequestAttachment template3DPath = new TbRequestAttachment();
+                        template3DPath.setType(AttachmentType.CONCEPT_3D_ATTACHMENT_PATH);
+                        template3DPath.setRequest(request);
+                        template3DPath.setCreateDate(new Timestamp(System.currentTimeMillis()));
+                        template3DPath.setAttachmentDescription("");
+                        template3DPath.setUploadBy(request.getPersonInCharge());
+                        template3DPath.setAttachmentFilePath(tem.getFilePath());
+                        attachmentDAO.save(template3DPath);
+
+                    }
+                }
+                EntityManagerHelper.commit();
+
+                //notify for user
+                EmailSender sender = new EmailSender(request.getTbUser().getEmail(),"Ban da tao yeu cau thanh cong",getMailTemplate().replace("main-content",getProperites().getProperty("new")));
+                sender.start();
+
+                sendInternalMessage(request, getProperites().getProperty("new"),true);
+            }
+        }else if(phoneNumber!=null){
+            //xu ly cho phone number here
+        }
+        return  request==null?null:RequestMapper.toRequestDTO(request);
+    }
+
+    @POST
+    @Path("insertFromConstruction")
+    @Produces(MediaType.APPLICATION_JSON)
+    public RequestDTO insertRequestFromConstruction(
+            @QueryParam("id") Integer requestId,
+            @QueryParam("description") String description,
+            @QueryParam("title") String title
+
+
+
+    ) throws IOException {
+        TbUserDAO userDAO = new TbUserDAO();
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        TbRequestAttachmentDAO attachmentDAO = new TbRequestAttachmentDAO();
+        List<TbRequest> requestList =  requestDAO.findByProperty("id",requestId);
+        TbRequest construct =  requestList!=null&&requestList.size()>0?requestList.get(0):null;
+        TbRequest request=null;
+
+        if(construct!=null){
+
+                request= new TbRequest();
+                request.setRequestTime(new Date(System.currentTimeMillis()));
+                request.setUpdateTime(new Date(System.currentTimeMillis()));
+                request.setRequestType(RequestType.DECORATION);
+                request.setTbUser(construct.getTbUser());
+                request.setCurrentStep(0);
+                request.setCurrentStatus(Status.NEW);
+                request.setTitle(title);
+                request.setDescription(description);
+                request.setLength(construct.getLength());
+                request.setWidth(construct.getWidth());
+                request.setNumberOfFloors(construct.getNumberOfFloors());
+                request.setActualPrice((double)request.getLength()*request.getWidth()*(request.getNumberOfFloors()+1)*ApplicationAPI.pricePerSqForDecs);
+
+            EntityManagerHelper.beginTransaction();
+                    requestDAO.save(request);
+                EntityManagerHelper.commit();
+                List<TbRequestAttachment> attachments = construct.getAttachments();
+
+                if(attachments!=null&&attachments.size()>0){
+                    for(TbRequestAttachment att:attachments){
+                       if(att.getType().equals(AttachmentType.CONCEPT_3D_ATTACHMENT_PATH)){
+                    //for attachment
+                            TbRequestAttachment attachment = new TbRequestAttachment();
+                            attachment.setAttachmentDescription("user template");
+                            attachment.setAttachmentFilePath(att.getAttachmentFilePath());
+                            attachment.setCreateDate(new Timestamp(System.currentTimeMillis()));
+                            attachment.setRequest(request);
+                            attachment.setType(AttachmentType.USER_DESIGN_PATH);
+                            attachment.setUploadBy(att.getUploadBy());
+                           EntityManagerHelper.beginTransaction();
+                           requestDAO.update(request);
+                           attachmentDAO.save(attachment);
+                           EntityManagerHelper.commit();
+                           //notify for user
+                           EmailSender sender = new EmailSender(request.getTbUser().getEmail(),"Ban da tao yeu cau thanh cong",getMailTemplate().replace("main-content",getProperites().getProperty("new")));
+                           sender.start();
+
+                           sendInternalMessage(request, getProperites().getProperty("new"),true);
+                           break;
+                       }
+                    }
+                }
+
+
+
+        }
+        return  request==null?null:RequestMapper.toRequestDTO(request);
+    }
+
+    @POST
+    @Path("updateStatus")
+    @Produces(MediaType.APPLICATION_JSON)
+    public RequestDTO updateStatus(@QueryParam("id") int id,
+                                   @QueryParam("status") Status status,
+                                   @QueryParam("isSendSMS") Boolean isSendSMS,
+                                   @QueryParam("personInCharge")String personInCharge,
+                                   @QueryParam("currentStep")int currentStep,
+                                   @QueryParam("message") String message,
+                                   @QueryParam("updatedBy")String updatedBy,
+                                   @QueryParam("templateId") List<Integer> templateID,
+                                   @QueryParam("attachmentId") Integer attachmentID,
+                                   @QueryParam("isChooise") Boolean isChooise,
+                                   @QueryParam("actualPrice")Double actualPrice,
+                                   @QueryParam("numberOfFloors") Integer numberOfFloors) throws IOException {
+
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        TbUserDAO userDAO = new TbUserDAO();
+        TbTemplateDAO templateDAO = new TbTemplateDAO();
+        TbRequestTemplateDAO reqTemplateDAO = new TbRequestTemplateDAO();
+        List<TbRequest> requestList =  requestDAO.findByProperty("id",id);
+        TbRequest request =  requestList!=null&&requestList.size()>0?requestList.get(0):null;
+        Status currentStatus = null;
+        int curStep=0;
+        if(request!=null){
+        	if(status!=null){
+            currentStatus = request.getCurrentStatus();
+             curStep =  request.getCurrentStep()==null?0:request.getCurrentStep();
+            if(curStep==currentStep){
+                 if(Status.DONE.equals(status)){
+                     if(currentStep<3){
+                         if(currentStep==2){
+                            if(currentStatus.equals(Status.WAIT_FOR_REVIEW)){
+                                request.setCurrentStep(currentStep+1);
+                                request.setCurrentStatus(Status.INPROGESS);
+                            }else if(currentStatus.equals(Status.INPROGESS)){
+                                request.setCurrentStatus(Status.WAIT_FOR_REVIEW);
+                                if(request.getDeadLineOfReject()==null){
+                                    Calendar cal = Calendar.getInstance();
+                                    cal.setTime(new Date(System.currentTimeMillis()));
+                                    cal.add(Calendar.DATE, 5); //minus number would decrement the days
+                                    request.setDeadLineOfReject(cal.getTime());
+                                }
+                            } else{
+                                request.setCurrentStep(currentStep+1);
+                                request.setCurrentStatus(Status.INPROGESS);                            }
+
+                         }else{
+                            request.setCurrentStep(currentStep+1);
+                            request.setCurrentStatus(Status.INPROGESS);
+                         }
+                     }else{
+                         request.setCurrentStatus(Status.DONE);
+                     }
+                 }else if(Status.WAIT_FOR_REVIEW.equals(status)){
+                     request.setCurrentStatus(status);
+
+                         if(request.getDeadLineOfReject()==null){
+                             Calendar cal = Calendar.getInstance();
+                             cal.setTime(new Date(System.currentTimeMillis()));
+                             cal.add(Calendar.DATE, 5); //minus number would decrement the days
+                             request.setDeadLineOfReject(cal.getTime());
+                         }
+
+                 }else{
+                        request.setCurrentStatus(status);
+                 }
+
+
+                request.setUpdateTime(new Date(System.currentTimeMillis()));
+            	}
+        	}
+        	if(templateID!=null&&templateID.size()>0){
+        		List<TbRequestTemplate> requestTemplate = request.getTemplates();
+        		if(requestTemplate==null){
+        			requestTemplate = new ArrayList<TbRequestTemplate>();
+        		}
+                for(Integer tempID:templateID){
+        		TbTemplate template = templateDAO.findById(tempID);
+        		if(template!=null){
+        			TbRequestTemplate reqTemplate = new TbRequestTemplate();
+        			reqTemplate.setTbRequest(request);
+        			reqTemplate.setTbTemplate(template);
+        			reqTemplate.setIsChooise(isChooise==null?false:isChooise);
+        			EntityManagerHelper.beginTransaction();
+        			reqTemplateDAO.save(reqTemplate);
+        			EntityManagerHelper.commit();
+        			requestTemplate.add(reqTemplate);
+        			request.setTemplates(requestTemplate);
+        		}
+        	}
+            }
+            if(attachmentID!=null&&attachmentID!=0){
+                List<TbRequestAttachment> attachments = request.getAttachments();
+                if(attachments!=null&&attachments.size()>0){
+                    for (TbRequestAttachment attachment:attachments){
+                        if(attachment.getId()==attachmentID){
+                            TbRequestAttachmentDAO attachmentDAO = new TbRequestAttachmentDAO();
+                            attachment.setChooise(true);
+                            EntityManagerHelper.beginTransaction();
+                            attachmentDAO.update(attachment);
+                            EntityManagerHelper.commit();
+
+                            for (TbRequestAttachment temp:attachments){
+                                if(temp.getType().equals(AttachmentType.CONCEPT_3D_ATTACHMENT_PATH)){
+                                    temp.setAttachmentFilePath(attachment.getAttachmentFilePath());
+                                    EntityManagerHelper.beginTransaction();
+                                    attachmentDAO.update(temp);
+                                    EntityManagerHelper.commit();
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(actualPrice!=null){
+                request.setActualPrice(actualPrice);
+            }
+            if(numberOfFloors!=null){
+                request.setNumberOfFloors(numberOfFloors);
+            }
+            if(personInCharge!=null){
+                List<TbUser> users = userDAO.findByLoginId(personInCharge,null);
+                if(users!=null&&users.size()>0){
+                    request.setPersonInCharge(users.get(0));
+                }
+            }
+        }
+        if(Status.REJECT.equals(status)){
+            request.setRejectCount((request.getRejectCount()==null?0:request.getRejectCount())+1);
+        }
+
+        if(Status.PAYALL.equals(status)&&request.getRequestType().equals(RequestType.CONSTRUCTION)){
+            request.setCurrentStatus(Status.INPROGESS);
+            request.setCurrentStep(3);
+
+        }
+
+        EntityManagerHelper.beginTransaction();
+        requestDAO.update(request);
+        EntityManagerHelper.commit();
+        System.out.println("Current status: "+currentStatus);
+        System.out.println("Current step: "+curStep);
+        if(status!=null&&(!currentStatus.equals(status)||!(curStep==currentStep))){
+            notifyToUser(request,request.getTbUser(),message);
+        }
+        return request==null?null:RequestMapper.toRequestDTO(request);
+    }
+    
+    @POST
+    @Path("reject")
+    @Produces(MediaType.APPLICATION_JSON)
+    public RequestDTO reject(@QueryParam("id") int id,
+    						@QueryParam("isReset")Boolean isReset,
+                            @QueryParam("message")String message,
+                            @QueryParam("status")Status status){
+
+        TbRequestDAO requestDAO = new TbRequestDAO();
+
+        List<TbRequest> requestList =  requestDAO.findByProperty("id",id);
+        TbRequest request =  requestList!=null&&requestList.size()>0?requestList.get(0):null;
+        if(request!=null){
+        	if(isReset!=null&&isReset){
+        		request.setRejectCount(0);
+        		Calendar cal = Calendar.getInstance();
+                cal.setTime(new Date(System.currentTimeMillis()));
+                cal.add(Calendar.DATE, 5); //minus number would decrement the days
+                request.setDeadLineOfReject(cal.getTime());
+        		//request.setDeadLineOfReject()
+        	}else{
+        		int rejectCount = request.getRejectCount()==null?0:request.getRejectCount();
+        		request.setRejectCount(rejectCount+1);
+        	}
+            TbRequestMessageDAO requestMessageDAO = new TbRequestMessageDAO();
+
+            TbRequestMessage requestMessage = new TbRequestMessage();
+            requestMessage.setIsReaded(false);
+            requestMessage.setCurrentStep(request.getCurrentStep());
+            requestMessage.setCreateTime(new Date(System.currentTimeMillis()));
+            requestMessage.setRequestMessage(message);
+            if(status==null)
+                request.setCurrentStatus(Status.INPROGESS);
+        	else
+                request.setCurrentStatus(status);
+
+            EntityManagerHelper.beginTransaction();
+            requestDAO.update(request);
+            requestMessage.setTbRequest(request);
+            requestMessageDAO.save(requestMessage);
+            EntityManagerHelper.commit();
+            return request==null?null:RequestMapper.toRequestDTO(request);
+        }
+        return null;
+    }
+
+    @POST
+    @Path("paid")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PaymentInfo pay(@QueryParam("id") int id,
+                             @QueryParam("payment")Double payment,
+                             @QueryParam("currency") String currentcy,
+                             @QueryParam("contents") String contents,
+                             @QueryParam("paymentType") Integer paymentType,
+                             @QueryParam("isFinal") Boolean isFinal
+                             ){
+
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        TbPaymentInfoDAO payDao = new TbPaymentInfoDAO();
+        List<TbRequest> requestList =  requestDAO.findByProperty("id",id);
+        TbRequest request =  requestList!=null&&requestList.size()>0?requestList.get(0):null;
+        if(request!=null){
+           List<TbPaymentInfo> paymentInfos = request.getPayments();
+            if(paymentInfos==null){
+                paymentInfos = new ArrayList<TbPaymentInfo>();
+            }
+            TbPaymentInfo paymentInfo = new TbPaymentInfo();
+            paymentInfo.setPaymentType(paymentType);
+            paymentInfo.setPayment(payment);
+            paymentInfo.setCurrency(currentcy);
+            paymentInfo.setContents(contents);
+            paymentInfo.setCreateTime(new Timestamp(System.currentTimeMillis()));
+            paymentInfo.setRequest(request);
+
+            if(isFinal!=null&&isFinal){
+                request.setCurrentStep(3);
+                request.setCurrentStatus(Status.DONE);
+            }
+
+            EntityManagerHelper.beginTransaction();
+            payDao.save(paymentInfo);
+            request.setUpdateTime(new Date(System.currentTimeMillis()));
+            request.setPayments(paymentInfos);
+            EntityManagerHelper.commit();
+            List<TbRequest> requestListTemp =  requestDAO.findByProperty("id",id);
+            TbRequest requestTemp  =  requestListTemp!=null&&requestListTemp.size()>0?requestListTemp.get(0):null;
+            //notifyToUser(request,request.getTbUser(),"Bạn đã thanh toán thành công +\n Nội dung: "+contents);
+            return RequestMapper.toPaymentInfo(paymentInfo,requestTemp);
+        }
+        return null;
+    }
+
+
+    @POST
+    @Path("updateAttachment")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes({MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_FORM_URLENCODED})
+    public RequestDTO updateAttachment(
+                                   @Context HttpServletRequest requestContext,
+                                   @FormDataParam("id") int id,
+                                   @FormDataParam("isSendSMS") Boolean isSendSMS,
+                                   @FormDataParam("file") InputStream uploadedInputStream,
+                                   @FormDataParam("file") FormDataContentDisposition fileDetail,
+                                   @FormDataParam("uploadType") Integer uploadType){
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        TbUserDAO userDAO = new TbUserDAO();
+        List<TbRequest> requestList =  requestDAO.findByProperty("id",id);
+        TbRequest request =  requestList!=null&&requestList.size()>0?requestList.get(0):null;
+        TbRequestAttachmentDAO attachmentDAO = new TbRequestAttachmentDAO();
+        if(request!=null){
+            String filePath=null;
+            if(fileDetail!=null&&fileDetail.getFileName()!=null){
+                String uploadedFileLocation = requestContext.getSession().getServletContext().getRealPath("/requestdata");
+                //using current time to sure that there're no image can the same url
+                String fileName = "/"+System.currentTimeMillis()+fileDetail.getFileName();
+                System.out.println("file location:"+uploadedFileLocation);
+                try {
+                    writeToFile(uploadedInputStream, uploadedFileLocation + fileName);
+                } catch (IOException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+
+                filePath = "http://localhost/rdcs-api/requestdata"+fileName;
+
+            }
+
+                //default = upload template
+                TbRequestAttachment template3DPath = new TbRequestAttachment();
+                template3DPath.setType(AttachmentType.CONCEPT_3D_ATTACHMENT_PATH);
+                template3DPath.setRequest(request);
+                template3DPath.setCreateDate(new Timestamp(System.currentTimeMillis()));
+                template3DPath.setAttachmentDescription("");
+                template3DPath.setUploadBy(request.getPersonInCharge());
+                template3DPath.setAttachmentFilePath(filePath);
+
+            TbRequestAttachment origin3DTemplate = new TbRequestAttachment();
+            origin3DTemplate.setType(AttachmentType.DESIGNER_3D_EDITED_PATH);
+            origin3DTemplate.setRequest(request);
+            origin3DTemplate.setCreateDate(new Timestamp(System.currentTimeMillis()));
+             origin3DTemplate.setAttachmentDescription("");
+            origin3DTemplate.setUploadBy(request.getPersonInCharge());
+            origin3DTemplate.setAttachmentFilePath(filePath);
+
+
+            EntityManagerHelper.beginTransaction();
+            attachmentDAO.save(origin3DTemplate);
+            requestDAO.update(request);
+            attachmentDAO.save(template3DPath);
+            EntityManagerHelper.commit();
+
+
+        }
+        List<TbRequest> requestListTemp =  requestDAO.findByProperty("id",id);
+        TbRequest requestTemp =  requestList!=null&&requestList.size()>0?requestList.get(0):null;
+        return RequestMapper.toRequestDTO(requestTemp);
+    }
+
+    @POST
+    @Path("updateAttachment")
+    @Produces(MediaType.APPLICATION_JSON)
+    public RequestDTO updateAttachmentPATH(
+            @QueryParam("id") int id,
+            @QueryParam("filePath") String filePath,
+            @QueryParam("from") Integer from,
+            @QueryParam("description") String decsription,
+            @QueryParam("type")Integer type){
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        TbUserDAO userDAO = new TbUserDAO();
+        TbRequest request = requestDAO.findById(id);
+        TbRequestAttachmentDAO attachmentDAO = new TbRequestAttachmentDAO();
+        if(request!=null){
+            TbRequestAttachment attachment = new TbRequestAttachment();
+            if(type==null||type==0){
+               //user modify
+                attachment.setType(AttachmentType.USER_3D_EDITED_PATH);
+            }else{
+                attachment.setType(AttachmentType.DESIGNER_3D_EDITED_PATH);
+            }
+            attachment.setAttachmentDescription(decsription);
+            attachment.setRequest(request);
+            attachment.setAttachmentFilePath(filePath);
+            attachment.setCreateDate(new Timestamp(System.currentTimeMillis()));
+            EntityManagerHelper.beginTransaction();
+            requestDAO.update(request);
+            attachmentDAO.save(attachment);
+            EntityManagerHelper.commit();
+          System.currentTimeMillis();
+           }
+        return RequestMapper.toRequestDTO(request);
+    }
+
+
+
+
+
+    @GET
+    @Path("template")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<CTem> listTem() {
+        TbTemplateDAO dao = new TbTemplateDAO();
+        List<TbTemplate> templates = new ArrayList<TbTemplate>();
+        templates = dao.findAll();
+        return toCTemList(templates);
+    }
+
+    @GET
+    @Path("message")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Messages getMessage(@QueryParam("loginId") String loginId,
+                               @QueryParam("isAll")  Boolean isAll ) {
+        TbRequestMessageDAO requestMessageDAO  = new TbRequestMessageDAO();
+        List<TbRequestMessage> requestMessages = requestMessageDAO.findByUserIdAndStatus(isAll==null?false:isAll,loginId);
+        TbMessageDAO messageDAO = new TbMessageDAO();
+
+        return MessageMapper.toMessageList(requestMessages);
+    }
+    @POST
+    @Path("message")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Messages updateReaded(@QueryParam("loginId") String loginId) {
+        TbMessageDAO messageDAO = new TbMessageDAO();
+        TbRequestMessageDAO requestMessageDAO  = new TbRequestMessageDAO();
+
+        // messageDAO.updateMessageStatus(loginId);
+        List<TbRequestMessage> requestMessages = requestMessageDAO.findByUserIdAndStatus(false,loginId);
+
+        if(requestMessages!=null){
+            EntityManagerHelper.beginTransaction();
+            for(TbRequestMessage message:requestMessages){
+                message.setIsReaded(true);
+                requestMessageDAO.update(message);
+            }
+            EntityManagerHelper.commit();
+
+        }
+        return MessageMapper.toMessageList(requestMessages);
+    }
+
+    @GET
+    @Path("notification")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Notification getNotification(
+                                    @QueryParam("since")  Long since ) {
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        Date processingDate = new Date(System.currentTimeMillis());
+        List<TbRequest> newRequests = requestDAO.findByCreateTime(new Date(since));
+        return RequestMapper.toNotification(newRequests,processingDate);
+    }
+
+
+    private void writeToFile(InputStream uploadedInputStream,
+                             String uploadedFileLocation) throws IOException {
+
+        File file = new File(uploadedFileLocation);
+        OutputStream out = new FileOutputStream(file);
+        int read = 0;
+        byte[] bytes = new byte[1024];
+
+        out = new FileOutputStream(new File(uploadedFileLocation));
+        while ((read = uploadedInputStream.read(bytes)) != -1) {
+            out.write(bytes, 0, read);
+        }
+        out.flush();
+        out.close();
+
+    }
+
+    //list all template in cat, right thing on view3D template
+    @GET
+    @Path("templateByCat")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<CTem> listTemById(@QueryParam("cat") int categoryID) {
+        TbCategoryDAO dao = new TbCategoryDAO();
+        TbCategory cate = dao.findById(categoryID);
+        if (cate!=null) {
+        List<TbTemplateCategory> templateCategoryList = cate.getTbTemplateCategories();
+        List<TbTemplate> templateList = new ArrayList<TbTemplate>();
+
+        for(TbTemplateCategory temp : templateCategoryList){
+            templateList.add(temp.getTbTemplate());
+
+        }
+        return toCTemList(templateList);
+        }
+        return listTem();
+    }
+
+
+
+     // CTem to ListCTem
+    public List<CTem> toCTemList(List < TbTemplate > templateList){
+        List<CTem> tems = new ArrayList<CTem>();
+        for (TbTemplate template:templateList)  {
+            CTem tem = new CTem();
+            tem.setId(template.getId());
+            tem.setAut(template.getAuthor());
+            tem.setDes(template.getDescription());
+            tem.setCre(template.getCreateTime());
+            tem.setTit(template.getTitle());
+            tem.setFilePath(template.getFilePath());
+            tem.setImgUrl(template.getImagePreviewUrl());
+            tem.setPrice(template.getPrice());
+            tem.setWidth(template.getWidth());
+            tem.setLength(template.getLength());
+            tems.add(tem);
+        }
+        return tems;
+    }
+
+    // List Category  leftmenu - ViewTemplate
+    @GET
+    @Path("category")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<CCategory> listCategory() {
+        TbCategoryDAO dao = new TbCategoryDAO();
+        List<TbCategory> categories = new ArrayList<TbCategory>();
+        categories = dao.findAll();
+        List<CCategory> cats = new ArrayList<CCategory>();
+
+        for (TbCategory template:categories)  {
+            CCategory cat = new CCategory();
+            cat.setId(template.getId());
+            cat.setCategory(template.getCategory());
+            cat.setCreatetime(template.getCreateTime());
+
+            cats.add(cat);
+        }
+        return cats;
+    }
+    public int id;
+    public String aut;
+    public String des;
+
+
+    @GET
+    @Path("templateByID")
+    @Produces(MediaType.APPLICATION_JSON)
+    public CTem findTemplate(@QueryParam("id") int id) {
+        TbTemplateDAO dao = new TbTemplateDAO();
+        TbTemplate template = new TbTemplate();
+        template = dao.findById(id);
+        if (template!=null) {
+        CTem tem = new CTem();
+        tem.setFilePath(template.getFilePath());
+        tem.setImgUrl(template.getImagePreviewUrl());
+        tem.setTit(template.getTitle());
+        tem.setCre(template.getCreateTime());
+        tem.setDes(template.getDescription());
+        tem.setAut(template.getAuthor());
+        tem.setId(template.getId());
+        tem.setPrice(template.getPrice());
+        tem.setWidth(template.getWidth());
+        tem.setLength(template.getLength());
+        return tem;
+        }
+        return null;
+    }
+
+    @GET
+    @Path("templateByTitle")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<CTem> Tem(@QueryParam("title") String title) {
+        TbTemplateDAO templateDAO = new TbTemplateDAO();
+
+            List<TbTemplate> templateList = templateDAO.findByTitle(title);
+            if(templateList!=null)
+            return toCTemList(templateList);
+            return new ArrayList<CTem>();
+    }
+
+    
+    @POST
+    @Path("template")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes({MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_FORM_URLENCODED})
+    public RequestDTO addTemplate(
+    		@FormDataParam("id") int id,
+    		@Context HttpServletRequest requestContext,
+            @FormDataParam("title") String title,
+            @FormDataParam("description") String description,
+            @FormDataParam("file") InputStream uploadedInputStream,
+            @FormDataParam("file") FormDataContentDisposition fileDetail,
+            @FormDataParam("price") Long price,
+            @FormDataParam("width") Double width,
+            @FormDataParam("length") Double length
+            ) {
+        TbRequestDAO requestDAO = new TbRequestDAO();
+        List<TbRequest> requestList =  requestDAO.findByProperty("id",id);
+        TbRequest request =  requestList!=null&&requestList.size()>0?requestList.get(0):null;
+
+        TbTemplateDAO templateDAO = new TbTemplateDAO();
+        TbRequestTemplateDAO requestTemplateDAO = new TbRequestTemplateDAO();
+        if(request!=null){
+            String filePath=null;
+            if(fileDetail!=null&&fileDetail.getFileName()!=null){
+                String uploadedFileLocation = requestContext.getSession().getServletContext().getRealPath("/requestdata");
+                //using current time to sure that there're no image can the same url
+                String fileName = "/"+System.currentTimeMillis()+fileDetail.getFileName();
+                System.out.println("file location:"+uploadedFileLocation);
+                try {
+                    writeToFile(uploadedInputStream, uploadedFileLocation + fileName);
+                } catch (IOException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+
+                filePath = "http://localhost/rdcs-api/requestdata"+fileName;
+               
+                TbTemplate template =new TbTemplate();
+                template.setPrice(price);
+                template.setCreateTime(new Date(System.currentTimeMillis()));
+                template.setDescription(description);
+                template.setFilePath(filePath);
+                template.setTitle(title);
+                template.setWidth(width);
+                template.setLength(length);
+                EntityManagerHelper.beginTransaction();
+                templateDAO.save(template);
+                EntityManagerHelper.commit();
+                
+                List<TbRequestTemplate> reqTemplates = template.getTbRequestTemplaties();
+                if(reqTemplates==null){
+                	reqTemplates = new ArrayList<TbRequestTemplate>();                	
+                }
+                TbRequestTemplate reqTemplate = new TbRequestTemplate();
+                reqTemplate.setIsChooise(false);
+                reqTemplate.setTbRequest(request);
+                reqTemplate.setTbTemplate(template);
+
+                EntityManagerHelper.beginTransaction();
+                requestTemplateDAO.save(reqTemplate);
+                EntityManagerHelper.commit();
+                reqTemplates.add(reqTemplate);
+                
+                request.setTemplates(reqTemplates);
+            }
+            
+            EntityManagerHelper.beginTransaction();
+            requestDAO.update(request);
+            EntityManagerHelper.commit();
+
+
+        }
+        List<TbRequest> requestListTemp =  requestDAO.findByProperty("id",id);
+        TbRequest temp =  requestListTemp!=null&&requestListTemp.size()>0?requestListTemp.get(0):null;
+        return temp==null?null:RequestMapper.toRequestDTO(temp);
+    }
+
+    @POST
+    @Path("deleteTemplate")
+    @Produces(MediaType.APPLICATION_JSON)
+    public RequestDTO deleteTemplate(@QueryParam("id") int id,
+                             @QueryParam("templateID")int templateId){
+
+        TbRequestTemplateDAO reqTemplateDAO = new TbRequestTemplateDAO();
+        TbRequestDAO requestDAO = new TbRequestDAO();
+
+        List<TbRequest> requestList =  requestDAO.findByProperty("id",id);
+        TbRequest request =  requestList!=null&&requestList.size()>0?requestList.get(0):null;
+        if(request!=null){
+            System.out.println("request is not null");
+            List<TbRequestTemplate> reqTemplates = request.getTemplates();
+            if(reqTemplates!=null){
+                System.out.println("size: "+reqTemplates.size());
+                for(TbRequestTemplate requestTemplate:reqTemplates){
+                    if(requestTemplate.getTbTemplate().getId()==templateId){
+                        EntityManagerHelper.beginTransaction();
+                        reqTemplateDAO.delete(requestTemplate);
+                        EntityManagerHelper.commit();
+                    }
+                }
+            }else{
+                System.out.println("request is null");
+            }
+        }
+        List<TbRequest> requestListTemp =  requestDAO.findByProperty("id",id);
+        TbRequest requestTemp =  requestList!=null&&requestList.size()>0?requestList.get(0):null;
+        return RequestMapper.toRequestDTO(requestTemp);
+    }
+
+
+
+    @GET
+    @Path("findUserByLoginId")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<UserInfo> getUserByLoginId(@QueryParam("loginId") String loginId) {
+   TbUserDAO userDAO = new TbUserDAO();
+        List<TbUser> users = userDAO.findByLoginId(loginId, UserRole.DESIGNER);
+        return UserMapper.toUserInfoList(users);
+    }
+
+    @POST
+    @Path("login")
+    @Produces(MediaType.APPLICATION_JSON)
+    public UserInfo login(@QueryParam("userName") String userName,
+                          @QueryParam("password") String passWord){
+
+        TbUserDAO userDAO = new TbUserDAO();
+        TbUser user = userDAO.login(userName,passWord);
+        if(user==null){
+           return new UserInfo();
+        }
+        return UserMapper.toUserInfo(user);
+    }
+
+    @POST
+    @Path("mail")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String mail(@FormParam("toUser") String email,
+                       @FormParam("title") String title,
+                       @FormParam("content") String content){
+        //"đây là request tạo từ intelijj ";
+        System.out.println("Start sendEmail to: "+email);
+        System.out.println("Email:"+ content);
+        sendEmail(email, title, content);
+        return "demo";
+    }
+
+    @POST
+    @Path("pdf")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String printPdf(@QueryParam("title") String title){
+        //"đây là request tạo từ intelijj ";
+        FirstPdf.main(title);
+        return "demo";
+    }
+
+    @POST
+    @Path("register")
+    @Produces(MediaType.APPLICATION_JSON)
+    public UserInfo register(@QueryParam("userName") String userName,
+                           @QueryParam("password") String passWord,
+                           @QueryParam("firstName") String firstName,
+                           @QueryParam("lastName") String lastName,
+                           @QueryParam("email") String email,
+                           @QueryParam("phoneNumber") String phoneNumber,
+                           @QueryParam("address") String address) throws IOException {
+       TbUserDAO userDAO = new TbUserDAO();
+        TbUser user = new TbUser();
+        user.setAddress(address);
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setLoginId(userName);
+        user.setPassword(passWord);
+        user.setPhoneNumber(phoneNumber);
+        user.setRole(UserRole.CUSTOMER);
+        EntityManagerHelper.beginTransaction();
+        userDAO.save(user);
+        EntityManagerHelper.commit();
+        sendEmail(user.getEmail(),"Chao mung ban den voi RDCS Co. ", getCoverLetter());
+        return UserMapper.toUserInfo(user);
+
+    }
+
+    public void sendEmail(String toEmails,String subject, String content) {
+
+        try{
+                EmailSender sender = new EmailSender(toEmails,subject,content);
+                 sender.start();
+
+                System.out.println("Done");
+        }catch (Exception ex){
+             ex.printStackTrace();
+        }
+
+    }
+
+    public void notifyToUser(TbRequest request, TbUser user, String messsage) {
+        try{
+        String key = getMessageKey(request);
+            System.out.println("Key: "+key);
+        if(key!=null){
+            String smsMessage = getSMSPro().getProperty(key);
+            if(smsMessage!=null&&!smsMessage.trim().equals("")){
+           //currently not use SMS cho do ton tien
+               sendSMSMessage(request.getTbUser().getPhoneNumber(),smsMessage);
+            }
+
+            String emailMessage = getProperites().getProperty(key);
+            if(emailMessage!=null&&!emailMessage.equals("")){
+
+                sendEmail(user.getEmail(),"Thong bao tu RDCS CO.",getMailTemplate().replace("main-content",emailMessage));
+            }
+            if(messsage!=null&&!messsage.trim().equals("")){
+                sendInternalMessage(request,messsage,false);
+            }
+
+            String internalMessage = getInternalMessProp().getProperty(key);
+            if(internalMessage!=null&&(!"".equals(internalMessage))){
+                sendInternalMessage(request,internalMessage,true);
+            }
+          //sendSMSMessage(user.getPhoneNumber(),messsage);
+        } }catch (Exception ex){
+
+        }
+       }
+
+    private void sendInternalMessage(TbRequest request, String message, Boolean isAuto){
+          TbRequestDAO requestDAO = new TbRequestDAO();
+          TbRequestMessageDAO messageDAO = new TbRequestMessageDAO();
+        if(message!=null&&!message.equals("")){
+            TbRequestMessageDAO requestMessageDAO = new TbRequestMessageDAO();
+            TbRequestMessage requestMessage = new TbRequestMessage();
+            requestMessage.setIsReaded(false);
+            requestMessage.setCurrentStep(request.getCurrentStep());
+            requestMessage.setCreateTime(new Date(System.currentTimeMillis()));
+            requestMessage.setRequestMessage(message);
+            requestMessage.setAuto(isAuto);
+
+            EntityManagerHelper.beginTransaction();
+            requestMessage.setTbRequest(request);
+            requestMessageDAO.save(requestMessage);
+            EntityManagerHelper.commit();
+        }
+    }
+
+
+
+    private String getMessageKey(TbRequest request) throws IOException {
+        String message = "";
+        if(request.getCurrentStatus().equals(Status.NEW)){
+            //new
+            message = "new";
+        }else if(request.getCurrentStatus().equals(Status.CANCEL)){
+            // cancel
+            message = "cancel";
+
+        }else if(request.getCurrentStatus().equals(Status.PENDING)){
+            //pending
+            message = "pending";
+
+        }else if(request.getRequestType().equals(RequestType.CONSTRUCTION)){
+            if (request.getCurrentStatus().equals(Status.INPROGESS)){
+                if(request.getCurrentStep()==0){
+                    //approveNew
+                    message = "approveNew";
+
+                }else if(request.getCurrentStep()==1){
+                    //signContract
+                    message = "signContract";
+
+                }else if(request.getCurrentStep()==3){
+                    //finalProcessing
+                    message = "finalProcessing";
+
+                }else if (request.getCurrentStep()==2){
+                    //requestProcessing
+                    message = "requestProcessing";
+
+                }
+            }else if(request.getCurrentStatus().equals(Status.WAIT_FOR_REVIEW)){
+                if(request.getCurrentStep()==2){
+                    message = "requestReview";
+                }
+            }
+        }else if(request.getRequestType().equals(RequestType.DECORATION)){
+            if(request.getCurrentStep()==1){
+                if(request.getCurrentStatus().equals(Status.INPROGESS)){
+                    //decoINPROGRESS
+                    message = "decoINPROGRESS";
+
+                }
+
+
+            }else if(request.getCurrentStep()==2){
+                if(request.getCurrentStatus().equals(Status.WAIT_FOR_REVIEW)){
+                    //decoWAITforApproval
+                    message = "decoWAITforApproval";
+
+                }else if(request.getCurrentStatus().equals(Status.REJECT)){
+                    //decoREJECT
+                    message = "decoREJECT";
+
+                }else if(request.getCurrentStatus().equals(Status.INPROGESS)){
+                    // decoFirstCharge
+                    message = "decoFirstCharge";
+
+                }else if(request.getCurrentStatus().equals(Status.CHARGED)){
+                    // decoREVIEW
+                    message = "decoREVIEW";
+
+                }
+
+
+            }else if (request.getCurrentStep()==3){
+                if(request.getCurrentStatus().equals(Status.INPROGESS)){
+                    //decoCHARGE
+                    message = "decoCHARGE";
+
+                }else if(request.getCurrentStatus().equals(Status.WAIT_FOR_REVIEW)){
+                    //decoDONEcharge
+                    message = "decoDONEcharge";
+
+                }else if(request.getCurrentStatus().equals(Status.DONE)){
+                    //decoDONE
+                    message = "decoDONE";
+
+                }
+            }
+        }
+        System.out.println("Type: "+request.getRequestType());
+        System.out.println("Step: "+request.getCurrentStep());
+        System.out.println("Status: "+request.getCurrentStatus());
+        System.out.println("Key: "+message);
+        return message.trim().equals("")?null:message;
+    }
+
+
+    private boolean sendInternalMessage(TbUser user,String messageText){
+        TbMessageDAO messageDAO = new TbMessageDAO();
+        TbMessage message = new TbMessage();
+        message.setIsReaded(false);
+        message.setMessage(messageText);
+        message.setCreateTime(new Date(System.currentTimeMillis()));
+        message.setTbUser(user);
+        EntityManagerHelper.beginTransaction();
+        messageDAO.save(message);
+        EntityManagerHelper.commit();
+        return false;
+    }
+
+    private boolean sendSMSMessage(String phoneNumber, String message){
+        SMSSender sender = new SMSSender(phoneNumber,message);
+        sender.start();
+
+        return true;
+    }
+
+    public static void main(String...args){
+        System.out.println("Hello world ");
+    }
+    @GET
+    @Path("AllPayment")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<PaymentInfo> pay(@QueryParam("year") int year) {
+        TbPaymentInfoDAO dao = new TbPaymentInfoDAO();
+        List<TbPaymentInfo> pays = new ArrayList<TbPaymentInfo>();
+        pays = dao.findAllbyYear(year);
+        List<PaymentInfo> result = new ArrayList<PaymentInfo>();
+        for (TbPaymentInfo pay:pays)  {
+            PaymentInfo tem = new PaymentInfo();
+            tem.setPaymentType(pay.getPaymentType());
+            tem.setPayment(pay.getPayment());
+            tem.setPaymentId(pay.getPaymentId());
+            tem.setCurrency(pay.getCurrency());
+            tem.setContents(pay.getContents());
+            tem.setCreateTime(pay.getCreateTime());
+            result.add(tem);
+        }
+        return result;
+    }
+}
