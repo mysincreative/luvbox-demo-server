@@ -1,0 +1,15 @@
+Maven__log4j_log4j_1_2_17.xml
+*.war
+*.jar
+
+index.jsp
+add.jsp
+list.jsp
+update.jsp
+mvc-dispatcher-servlet.xml
+web.xml
+pom.properties
+Backend/luvbox-api/target/classes
+Backend/luvbox-api/target/luvbox-api-0.0.1-SNAPSHOT/WEB-INF/classes
+tomcat-users.xml
+persistence.xml
