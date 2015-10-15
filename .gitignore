@@ -13,3 +13,7 @@ Backend/luvbox-api/target/classes
 Backend/luvbox-api/target/luvbox-api-0.0.1-SNAPSHOT/WEB-INF/classes
 tomcat-users.xml
 persistence.xml
+Maven__com_sun_jersey_contribs_jersey_multipart_1_8.xml
+Maven__com_sun_jersey_jersey_core_1_8.xml
+Maven__org_jvnet_mimepull_1_4.xml
+Maven__com_sun_jersey_jersey_server_1_8.xml
