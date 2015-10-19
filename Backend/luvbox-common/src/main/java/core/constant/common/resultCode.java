@@ -4,7 +4,14 @@ package core.constant.common;
  * Created by m00246-quyen on 10/19/15.
  * Application ResultCode
  */
-public class resultCode {
+public enum resultCode {
+
+    /** Normal Passed */
+    OK(codeType.OK, 0, "", null),
+
+    /** other error*/
+    ERR_OTHER(codeType.ERR, 1, "error.other","");
+
 
     /** Code Type*/
     private final codeType type;
@@ -21,7 +28,7 @@ public class resultCode {
     /**
      * Constructor
      */
-    public resultCode(codeType t, Integer c, String mess, String svPath ){
+    private resultCode(codeType t, Integer c, String mess, String svPath ){
         this.type = t;
         this.code = c;
         this.mess = mess;

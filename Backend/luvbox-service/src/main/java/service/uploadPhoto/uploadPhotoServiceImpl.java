@@ -9,10 +9,10 @@ import java.io.*;
  */
 public class uploadPhotoServiceImpl implements uploadPhotoService{
 
-    public String uploadPhotoService(InputStream file, String filename) throws IOException{
+    public String uploadPhotoService(InputStream file, String filename) throws Exception{
 
         //First will set static, after will fix to create location on server
-        String serverLocation = "/Users/m00246-quyen/Documents/SinC/serverFolder/" + filename + ".png";
+        String serverLocation = "/Users/m00246-quyen/Documents/serverFolder/" + filename + ".png";
         try {
             OutputStream outpuStream = new FileOutputStream(serverLocation);
             int read = 0;

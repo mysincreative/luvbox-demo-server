@@ -1,23 +1,20 @@
 package api;
 
 
-import java.io.InputStream;
-import java.util.*;
-
-import javax.ws.rs.*;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
-import dto.*;
+import dto.Test;
+import dto.TestResult;
 import mapper.TestMapper;
-import org.springframework.stereotype.Component;
 import message.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import service.uploadPhoto.uploadPhotoService;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.InputStream;
 
 @Component
 @Path("/luvbox")
@@ -50,7 +47,6 @@ public class ApplicationAPI {
             @FormDataParam("file") InputStream uploadedInputStream,
             @FormDataParam("file") FormDataContentDisposition fileDetail) throws Exception{
         String uploadStatus = uploadPhotoService.uploadPhotoService(uploadedInputStream, fileDetail.getName());
-        String a = fileDetail.getType();
         return Response.status(200).entity(uploadStatus).build();
     }
 
