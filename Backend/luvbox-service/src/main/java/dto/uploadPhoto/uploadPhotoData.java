@@ -12,11 +12,11 @@ public class uploadPhotoData {
     private String coupleID;
     //Upload UserID
     private String upUserID;
-    //Photo Capture text
+    //photo Capture text
     private String captureText;
-    //Photo
+    //photo
     private InputStream uploadedInputStream;
-    //Photo Detail
+    //photo Detail
     private FormDataContentDisposition Detail;
 
     public String getCoupleID() {

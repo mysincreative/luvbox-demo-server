@@ -1,4 +1,4 @@
-package service.Photo.setPhoto;
+package service.photo.setPhoto;
 
 /**
  * Created by m00246-quyen on 10/28/15.

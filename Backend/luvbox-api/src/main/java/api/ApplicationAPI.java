@@ -9,7 +9,7 @@ import mapper.TestMapper;
 import message.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import service.Photo.uploadPhoto.uploadPhotoService;
+import service.photo.uploadPhoto.uploadPhotoService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

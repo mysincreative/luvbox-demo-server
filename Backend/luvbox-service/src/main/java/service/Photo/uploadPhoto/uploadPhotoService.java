@@ -1,4 +1,4 @@
-package service.Photo.uploadPhoto;
+package service.photo.uploadPhoto;
 
 import java.io.InputStream;
 
@@ -7,7 +7,7 @@ import java.io.InputStream;
  */
 public interface uploadPhotoService {
     /**
-     * (Memo) Testing for upload Photo, after that will no more use this
+     * (Memo) Testing for upload photo, after that will no more use this
      * @param file
      * @param filename
      * @return
@@ -16,7 +16,7 @@ public interface uploadPhotoService {
     public String uploadPhotoService(InputStream file, String filename) throws Exception;
 
     /**
-     * Post Photo
+     * Post photo
      *      Testing: return success or failed string
      *      Release: analyzing
      * @return ResultString

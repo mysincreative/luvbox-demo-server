@@ -1,4 +1,4 @@
-package service.Photo.deletePhoto;
+package service.photo.deletePhoto;
 
 /**
  * Created by m00246-quyen on 10/28/15.

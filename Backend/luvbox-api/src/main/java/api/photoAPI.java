@@ -14,7 +14,7 @@ public class photoAPI {
 
 
     /**
-     * Upload Photo
+     * Upload photo
      * @return Response
      */
     @Path("/Upload")

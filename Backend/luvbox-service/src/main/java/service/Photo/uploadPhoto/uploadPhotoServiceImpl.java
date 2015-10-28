@@ -1,4 +1,4 @@
-package service.Photo.uploadPhoto;
+package service.photo.uploadPhoto;
 
 import java.io.*;
 
