@@ -13,7 +13,9 @@
 
     <bean id="mapper"
           class="mapper.TestMapper" />
+
     <bean id="uploadPhotoService"
-          class="service.uploadPhoto.uploadPhotoServiceImpl"/>
+          class="service.Photo.uploadPhoto.uploadPhotoServiceImpl"/>
+
 
 </beans>

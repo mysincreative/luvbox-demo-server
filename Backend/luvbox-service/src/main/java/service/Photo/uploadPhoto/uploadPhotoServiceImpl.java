@@ -1,6 +1,4 @@
-package service.uploadPhoto;
-
-import dto.uploadPhoto.uploadPhotoData;
+package service.Photo.uploadPhoto;
 
 import java.io.*;
 
@@ -28,5 +26,9 @@ public class uploadPhotoServiceImpl implements uploadPhotoService{
             return "failed";
         }
         return "Success";
+    }
+
+    public String excute() {
+        return null;
     }
 }

@@ -9,7 +9,7 @@ import mapper.TestMapper;
 import message.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import service.uploadPhoto.uploadPhotoService;
+import service.Photo.uploadPhoto.uploadPhotoService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -48,6 +48,7 @@ public class ApplicationAPI {
             @FormDataParam("file") FormDataContentDisposition fileDetail) throws Exception{
         String uploadStatus = uploadPhotoService.uploadPhotoService(uploadedInputStream, fileDetail.getName());
         return Response.status(200).entity(uploadStatus).build();
+
     }
 
 }
