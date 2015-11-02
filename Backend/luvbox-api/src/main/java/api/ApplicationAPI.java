@@ -40,15 +40,5 @@ public class ApplicationAPI {
 
     }
 
-    @POST
-    @Path("/photo")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response phototest(
-            @FormDataParam("file") InputStream uploadedInputStream,
-            @FormDataParam("file") FormDataContentDisposition fileDetail) throws Exception{
-        String uploadStatus = uploadPhotoService.uploadPhotoService(uploadedInputStream, fileDetail.getName());
-        return Response.status(200).entity(uploadStatus).build();
-
-    }
 
 }

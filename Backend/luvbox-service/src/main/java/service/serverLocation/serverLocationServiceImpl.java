@@ -1,4 +1,4 @@
-package service.serverLocationService;
+package service.serverLocation;
 
 /**
  * Created by m00246-quyen on 10/19/15.

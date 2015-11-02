@@ -7,28 +7,24 @@ import java.io.*;
  */
 public class uploadPhotoServiceImpl implements uploadPhotoService{
 
-    public String uploadPhotoService(InputStream file, String filename) throws Exception{
+    public String excute(InputStream file, String filename) throws Exception{
 
         //First will set static, after will fix to create location on server
         String serverLocation = "/Users/m00246-quyen/Documents/serverFolder/" + filename + ".png";
         try {
-            OutputStream outpuStream = new FileOutputStream(serverLocation);
+            OutputStream outputStream = new FileOutputStream(serverLocation);
             int read = 0;
             byte[] bytes = new byte[1024];
 
-            outpuStream = new FileOutputStream(new File(serverLocation));
+            outputStream = new FileOutputStream(new File(serverLocation));
             while ((read = file.read(bytes)) != -1) {
-                outpuStream.write(bytes, 0, read);
+                outputStream.write(bytes, 0, read);
             }
-            outpuStream.flush();
-            outpuStream.close();
+            outputStream.flush();
+            outputStream.close();
         } catch (IOException e) {
             return "failed";
         }
         return "Success";
-    }
-
-    public String excute() {
-        return null;
     }
 }

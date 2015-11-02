@@ -6,6 +6,8 @@ package dto.uploadPhoto;
 public class postPhotoDto extends uploadPhotoDto {
     //Photo Capture
     private String photoCapture;
+    //User emotion icon analyzing
+    //private String emoCode;
 
     /**
      * Photo Capture getter
@@ -22,4 +24,5 @@ public class postPhotoDto extends uploadPhotoDto {
     public void setPhotoCapture(String photoCapture) {
         this.photoCapture = photoCapture;
     }
+
 }
