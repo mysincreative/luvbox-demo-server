@@ -13,14 +13,14 @@ public enum storeLocationType {
     /** Upload file type */
 //    private final String typeName;
     /** Type's Value*/
-    private final Integer _value;
+    private final Integer value;
 
     /**
      * Constructor
      */
-    private storeLocationType(Integer _value){
+    private storeLocationType(Integer value){
 //        this.typeName = typeName;
-        this._value = _value;
+        this.value = value;
     }
 
 //    /**
@@ -33,10 +33,10 @@ public enum storeLocationType {
 
     /**
      * get type Value
-     * @return _value
+     * @return value
      */
-    public Integer get_value() {
-        return _value;
+    public Integer getValue() {
+        return value;
     }
 
     /**
@@ -46,7 +46,7 @@ public enum storeLocationType {
      */
     public static storeLocationType ofSafe(Integer val){
         for (storeLocationType obj : storeLocationType.values()){
-            if (obj._value.equals(val))
+            if (obj.value.equals(val))
                 return obj;
         }
         return null;

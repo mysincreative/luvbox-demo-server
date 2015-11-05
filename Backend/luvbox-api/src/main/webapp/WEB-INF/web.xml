@@ -2,7 +2,7 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-_value>classpath:applicationContext.xml</param-_value>
+        <param-value>classpath:applicationContext.xml</param-value>
     </context-param>
 
     <listener>
@@ -20,7 +20,7 @@
             <param-name>
                 com.sun.jersey.config.property.packages
             </param-name>
-            <param-_value>api</param-_value>
+            <param-value>api</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
