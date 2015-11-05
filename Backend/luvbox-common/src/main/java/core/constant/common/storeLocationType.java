@@ -5,21 +5,22 @@ package core.constant.common;
  */
 public enum storeLocationType {
 
-    couplePhotoURL(1),
-    privatePhotoURL(2),
-    otherFileURL(3);
+    COUPLE_PHOTO_URL(1),
+    PRIVATE_PHOTO_URL(2),
+    COUPLE_UI_URL(3),
+    OTHER_FILE_URL(4);
 
     /** Upload file type */
 //    private final String typeName;
     /** Type's Value*/
-    private final Integer value;
+    private final Integer _value;
 
     /**
      * Constructor
      */
-    private storeLocationType(Integer value){
+    private storeLocationType(Integer _value){
 //        this.typeName = typeName;
-        this.value = value;
+        this._value = _value;
     }
 
 //    /**
@@ -32,10 +33,10 @@ public enum storeLocationType {
 
     /**
      * get type Value
-     * @return value
+     * @return _value
      */
-    public Integer getValue() {
-        return value;
+    public Integer get_value() {
+        return _value;
     }
 
     /**
@@ -45,7 +46,7 @@ public enum storeLocationType {
      */
     public static storeLocationType ofSafe(Integer val){
         for (storeLocationType obj : storeLocationType.values()){
-            if (obj.value.equals(val))
+            if (obj._value.equals(val))
                 return obj;
         }
         return null;

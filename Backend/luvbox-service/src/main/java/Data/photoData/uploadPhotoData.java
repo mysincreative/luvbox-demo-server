@@ -1,4 +1,4 @@
-package dto.uploadPhoto;
+package Data.photoData;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 
@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 /**
  * Created by m00246-quyen on 10/30/15.
  */
-public abstract class uploadPhotoDto {
+public abstract class uploadPhotoData {
     //Couple ID
     private String coupleID;
     //Upload UserID

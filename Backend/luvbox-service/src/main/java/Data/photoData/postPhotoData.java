@@ -1,9 +1,9 @@
-package dto.uploadPhoto;
+package Data.photoData;
 
 /**
  * Created by m00246-quyen on 10/30/15.
  */
-public class postPhotoDto extends uploadPhotoDto {
+public class postPhotoData extends uploadPhotoData {
     //Photo Capture
     private String photoCapture;
     //User emotion icon analyzing

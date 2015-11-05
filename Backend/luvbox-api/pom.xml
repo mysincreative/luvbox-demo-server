@@ -48,6 +48,11 @@
             <artifactId>luvbox-service</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>sinc-project</groupId>
+            <artifactId>luvbox-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>

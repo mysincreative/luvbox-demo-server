@@ -14,61 +14,61 @@ public enum resultCode {
 
 
     /** Code Type*/
-    private final codeType type;
+    private final codeType _type;
 
     /** Code*/
-    private final Integer code;
+    private final Integer _code;
 
     /** processing package message*/
-    private final String mess;
+    private final String _mess;
 
     /** Call service Path*/
-    private final String svPath;
+    private final String _svPath;
 
     /**
      * Constructor
      */
-    private resultCode(codeType t, Integer c, String mess, String svPath ){
-        this.type = t;
-        this.code = c;
-        this.mess = mess;
-        this.svPath = svPath;
+    private resultCode(codeType t, Integer c, String _mess, String _svPath){
+        this._type = t;
+        this._code = c;
+        this._mess = _mess;
+        this._svPath = _svPath;
     }
 
     /**
      * Get Result Code Type {Normal, Error, Warning, Information}
-     * @return type
+     * @return _type
      */
-    public codeType getType(){
-        return type;
+    public codeType get_type(){
+        return _type;
     }
 
     /**
      * Get Result Code
-     * @return code * type
-     * if OK passed => code = 0
-     * if error => code = code
-     * warning and information => code = -code
+     * @return _code * _type
+     * if OK passed => _code = 0
+     * if error => _code = _code
+     * warning and information => _code = -_code
      */
-    public Integer getCode(){
-        return code * type.getCode();
+    public Integer get_code(){
+        return _code * _type.getCode();
     }
 
 
     /**
      * Return Code message (error package information)
-     * @return mess
+     * @return _mess
      */
-    public String getMess(){
-        return mess;
+    public String get_mess(){
+        return _mess;
     }
 
     /**
      * Return Call service
-     * @return svPath
+     * @return _svPath
      */
-    public String getSvPath(){
-        return svPath;
+    public String get_svPath(){
+        return _svPath;
     }
 
     /**
