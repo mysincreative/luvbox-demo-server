@@ -15,5 +15,5 @@ public interface uploadPhotoService {
      * @throws Exception
      * @return ResultString
      */
-    public String excute(InputStream file, String filename) throws Exception;
+    public String execute(InputStream file, String filename) throws Exception;
 }

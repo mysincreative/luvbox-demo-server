@@ -31,10 +31,11 @@ public class photoAPI {
     @Path("/Upload")
     public Response Upload( @FormDataParam("file") InputStream uploadedInputStream,
                             @FormDataParam("file") FormDataContentDisposition fileDetail) throws Exception{
-        String uploadStatus = uploadPhotoService.excute(uploadedInputStream, fileDetail.getName());
+        String uploadStatus = uploadPhotoService.execute(uploadedInputStream, fileDetail.getName());
         return Response.status(200).entity(uploadStatus).build();
     }
 
+    @POST
     @Path("/Download")
     public Response Download(){
         return Response.status(200).build();

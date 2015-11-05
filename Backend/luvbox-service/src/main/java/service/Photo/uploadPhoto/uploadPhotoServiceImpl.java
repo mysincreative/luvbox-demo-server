@@ -7,7 +7,7 @@ import java.io.*;
  */
 public class uploadPhotoServiceImpl implements uploadPhotoService{
 
-    public String excute(InputStream file, String filename) throws Exception{
+    public String execute(InputStream file, String filename) throws Exception{
 
         //First will set static, after will fix to create location on server
         String serverLocation = "/Users/m00246-quyen/Documents/serverFolder/" + filename + ".png";
